@@ -1,0 +1,235 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<script type="text/javascript" src="blockly/blockly_compressed.js"></script>
+<script type="text/javascript" src="overrides.js"></script>
+
+<script type="text/javascript" src="blockly/msg/messages.js"></script>
+
+<script type="text/javascript" src="blocks/logic.js"></script>
+<script type="text/javascript" src="blocks/loops.js"></script>
+<script type="text/javascript" src="blocks/math.js"></script>
+<script type="text/javascript" src="blocks/text.js"></script>
+<script type="text/javascript" src="blocks/lists.js"></script>
+<script type="text/javascript" src="blocks/variables.js"></script>
+<script type="text/javascript" src="blocks/procedures.js"></script>
+<script type="text/javascript" src="blocks/timing.js"></script>
+<script type="text/javascript" src="blocks/machines.js"></script>
+<script type="text/javascript" src="blocks/connections.js"></script>
+
+<script type="text/javascript" src="generators/python-octo.js"></script>
+<script type="text/javascript" src="generators/python-octo/control.js"></script>
+<script type="text/javascript" src="generators/python-octo/loops.js"></script>
+<script type="text/javascript" src="generators/python-octo/logic.js"></script>
+<script type="text/javascript" src="generators/python-octo/variables.js"></script>
+<script type="text/javascript" src="generators/python-octo/math.js"></script>
+<script type="text/javascript" src="generators/python-octo/text.js"></script>
+<script type="text/javascript" src="generators/python-octo/procedures.js"></script>
+<script type="text/javascript" src="generators/python-octo/machines.js"></script>
+<script type="text/javascript" src="generators/python-octo/connections.js"></script>
+
+<polymer-element name="octopus-blockly" attributes="toolbox code">
+<template>
+
+<link rel="stylesheet" href="blockly.css">
+<style>
+:host {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+:host #blockly {
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+
+:host #blockly svg {
+	height: 100%;
+}
+</style>
+
+<div id="blockly"></div>
+
+<xml id="toolboxCategories" style="display: none">
+    <category name="Machines">
+      <block type="machine_vapourtec_R2R4"></block>
+      <block type="connection_tcp"></block>
+      <block type="connection_serial"></block>
+	</category>
+	<category name="Control">
+      <block type="controls_wait"></block>
+      <block type="controls_wait_until"></block>
+      <block type="controls_if"></block>
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <block type="math_number">
+            <field name="NUM">10</field>
+          </block>
+        </value>
+      </block>
+      <block type="controls_whileUntil"></block>
+    </category>
+    <category name="Logic">
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean"></block>
+      <block type="logic_null"></block>
+      <block type="logic_ternary"></block>
+    </category>
+    <category name="Math">
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+      <block type="math_single"></block>
+      <block type="math_trig"></block>
+      <block type="math_constant"></block>
+      <block type="math_number_property"></block>
+      <block type="math_change">
+        <value name="DELTA">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+      </block>
+      <block type="math_round"></block>
+      <block type="math_on_list"></block>
+      <block type="math_modulo"></block>
+      <block type="math_constrain">
+        <value name="LOW">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="HIGH">
+          <block type="math_number">
+            <field name="NUM">100</field>
+          </block>
+        </value>
+      </block>
+      <block type="math_random_int">
+        <value name="FROM">
+          <block type="math_number">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="TO">
+          <block type="math_number">
+            <field name="NUM">100</field>
+          </block>
+        </value>
+      </block>
+      <block type="math_random_float"></block>
+    </category>
+    <category name="Text">
+      <block type="text"></block>
+      <block type="text_join"></block>
+      <block type="controls_log"></block>
+      <!--block type="text_append">
+        <value name="TEXT">
+          <block type="text"></block>
+        </value>
+      </block>
+      <block type="text_length"></block>
+      <block type="text_isEmpty"></block>
+      <block type="text_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_charAt">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_getSubstring">
+        <value name="STRING">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+      <block type="text_changeCase"></block>
+      <block type="text_trim"></block-->
+    </category>
+    <!--category name="Lists">
+      <block type="lists_create_empty"></block>
+      <block type="lists_create_with"></block>
+      <block type="lists_repeat">
+        <value name="NUM">
+          <block type="math_number">
+            <field name="NUM">5</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_length"></block>
+      <block type="lists_isEmpty"></block>
+      <block type="lists_indexOf">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getIndex">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_setIndex">
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+      <block type="lists_getSublist">
+        <value name="LIST">
+          <block type="variables_get">
+            <field name="VAR">list</field>
+          </block>
+        </value>
+      </block>
+    </category-->
+    <category name="Variables" custom="VARIABLE"></category>
+    <category name="Functions" custom="PROCEDURE"></category>
+  </xml>
+  
+</template>
+<script> 
+
+Polymer('octopus-blockly', {
+	ready: function () {
+		Blockly.inject(this, this.$.blockly, {
+			path: './components/octopus-blockly/blockly/',
+			toolbox: this.$.toolboxCategories
+		});
+
+		Blockly.addChangeListener(this.blocklyChanged.bind(this));
+		Blockly.octopusMachines = [];
+	},
+
+	blocklyChanged: function () {
+		this.code = Blockly.PythonOcto.workspaceToCode();
+	},
+
+	machinesChanged: function (machines) {
+		Blockly.octopusMachines = machines;
+		this.blocklyChanged();
+	},
+
+	machineNameChanged: function (from, to) {
+		console.log("Name Change:", from, to);
+	}
+});
+
+</script>
+</polymer-element>

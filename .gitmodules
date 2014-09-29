@@ -1,0 +1,3 @@
+[submodule "components/octopus-blockly/blockly"]
+	path = components/octopus-blockly/blockly
+	url = git://github.com/richardingham/blockly.git

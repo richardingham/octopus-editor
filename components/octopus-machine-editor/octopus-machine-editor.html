@@ -1,0 +1,99 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<!-- machine-list-service element dealing with ajax request -->
+
+<polymer-element name="octopus-machine-editor" attributes="machines">
+<template>
+<style>
+
+:host {
+	background-color: rgba(221, 221, 221, 0.8);
+	padding: 10px;
+}
+
+:host .machine {
+	background-color: #FFF;
+	padding: 5px 20px;
+	width: 360px;
+	margin-bottom: 10px;
+}
+
+:host #add {
+    background: #4285f4;
+    color: #fff;
+}
+
+</style>
+
+<template repeat="{{machines as m}}">
+<div class="machine">
+
+	<paper-input label="Alias" value="{{m.alias}}" on-change="{{aliasChanged}}"></paper-input>
+	<paper-dropdown-menu label="Type" selected="{{m.type}}" valueattr="name" on-core-select="{{changed}}">
+		<template repeat="{{machineTypes}}">
+			<paper-item label="{{label}}" name="{{name}}"></paper-item>
+		</template>
+	</paper-dropdown-menu>
+	<paper-dropdown-menu label="Connection" selected="{{m.connection.type}}" valueattr="name" on-core-select="{{changed}}">
+		<paper-item label="Dummy" name="dummy"></paper-item>
+		<paper-item label="TCP" name="tcp"></paper-item>
+		<paper-item label="Serial" name="serial"></paper-item>
+	</paper-dropdown-menu>
+
+	<template if="{{m.connection.type == 'tcp'}}">
+	<paper-input label="IP" value="{{m.connection.host}}" on-change="{{changed}}"></paper-input>
+	<paper-input label="Port" value="{{m.connection.tcpPort}}" on-change="{{changed}}"></paper-input>
+	</template>
+
+	<template if="{{m.connection.type == 'serial'}}">
+	<paper-input label="Port" value="{{m.connection.serialPort}}" on-change="{{changed}}"></paper-input>
+	<paper-input label="Baud rate" value="{{m.connection.baudrate}}" on-change="{{changed}}"></paper-input>
+	</template>
+
+</div>
+</template>
+
+<paper-button id="add" icon="add-circle" label="Add Machine" on-click="{{addMachine}}"></paper-button>
+
+</template>
+
+<script>
+
+Polymer('octopus-machine-editor', {
+	machines: [
+		{ varName: "", alias: "My machine", type: "vapourtec.R2R4", connection: { type: "tcp" } },
+		{ connection: {} }
+	],
+	machineTypes: [
+		{ name: "vapourtec.R2R4", label: "Vapourtec R2+/R4" },
+		{ name: "uniqsis.FlowSyn", label: "Uniqsis FlowSyn" },
+		{ name: "knauer.K120", label: "Knauer K-120" },
+		{ name: "knauer.S100", label: "Knauer S-100" }
+	],
+	aliasChanged: function (e, detail, sender) {
+		// Make the varName a valid variable name.
+		var m = sender.templateInstance.model.m;
+		var oldName = m.varName;
+		m.varName = m.alias.toLowerCase().replace(" ", "_");
+
+		// TODO: prevent duplicate names.
+		this.fire("name-change", { from: oldName, to: m.varName});
+	},
+	addMachine: function () {
+		this.machines.push({ connection: {} });
+	},
+	changed: function () {
+		this.fire("change");
+	}
+});
+
+</script>
+</polymer-element>
+
+
+
