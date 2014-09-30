@@ -887,6 +887,9 @@ Blockly.Blocks['procedures_namedsequence'] = {
     this.appendStatementInput('STACK')
         .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_DO);
     this.warnings = [{name:"checkEmptySockets",sockets:["STACK"]}];
+	
+	this.arguments_ = [];
+	this.paramIds_ = [];
   },
   dispose: function() {
     var name = this.getFieldValue('NAME');

@@ -51,6 +51,8 @@ Blockly.AIProcedure.getProcedureNames = function(returnValue) {
     var procName = topBlocks[i].getFieldValue('NAME')
     if(topBlocks[i].type == "procedures_defnoreturn" && !returnValue) {
       procNameArray.push([procName,procName]);
+    } else if (topBlocks[i].type == "procedures_namedsequence" && !returnValue) {
+      procNameArray.push([procName,procName]);
     } else if (topBlocks[i].type == "procedures_defreturn" && returnValue) {
       procNameArray.push([procName,procName]);
     }
