@@ -23,7 +23,7 @@
   /* Override the default Closure URL. */
 .blocklyWidgetDiv .goog-option-selected .goog-menuitem-checkbox,
 .blocklyWidgetDiv .goog-option-selected .goog-menuitem-icon {
-  background: url(media/sprites.png) no-repeat -48px -16px !important;
+  background: url(blockly/media/sprites.png) no-repeat -48px -16px !important;
 }
 
   /* Copied from: goog/css/colorpicker-simplegrid.css */
