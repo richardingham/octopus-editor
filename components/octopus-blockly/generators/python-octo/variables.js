@@ -37,7 +37,7 @@ Blockly.PythonOcto.getVariableName_ = function(name){
   if (prefix === Blockly.globalNamePrefix) {
     name = unprefixedName;
   } else {
-    (Blockly.possiblyPrefixYailNameWith(prefix))(unprefixedName);
+    name = (Blockly.possiblyPrefixYailNameWith(prefix))(unprefixedName);
   }
   return name;
 };
