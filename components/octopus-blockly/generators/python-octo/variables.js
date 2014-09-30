@@ -45,3 +45,14 @@ Blockly.PythonOcto['variables_set'] = function(block) {
       Blockly.Variables.NAME_TYPE);
   return 'set(' + varName + ', ' + argument0 + ')';
 };
+
+Blockly.PythonOcto['global_declaration'] = function(block) {
+  // Variable setter.
+  var argument0 = Blockly.PythonOcto.valueToCode(block, 'VALUE',
+      Blockly.PythonOcto.ORDER_NONE) || '0';
+  var varName = Blockly.PythonOcto.variableDB_.getName(block.getFieldValue('NAME'),
+      Blockly.Variables.NAME_TYPE);
+  return varName + ' = variable(' + argument0 + ')';
+};
+Blockly.PythonOcto['lexical_variable_set'] = Blockly.PythonOcto['variables_set'];
+Blockly.PythonOcto['lexical_variable_get'] = Blockly.PythonOcto['variables_get'];

@@ -78,30 +78,30 @@ Blockly.PythonOcto.init = function() {
     Blockly.PythonOcto.variableDB_.reset();
   }
 
-  var defvars = [];
-  var variables = Blockly.Variables.allVariables();
-  for (var x = 0; x < variables.length; x++) {
-    defvars[x] = Blockly.PythonOcto.variableDB_.getName(variables[x],
-        Blockly.Variables.NAME_TYPE) + ' = None';
-  }
-  Blockly.PythonOcto.definitions_['variables'] = defvars.join('\n');
+  //var defvars = [];
+  //var variables = Blockly.Variables.allVariables();
+ // for (var x = 0; x < variables.length; x++) {
+  //  defvars[x] = Blockly.PythonOcto.variableDB_.getName(variables[x],
+  //      Blockly.Variables.NAME_TYPE) + ' = None';
+  //}
+  //Blockly.PythonOcto.definitions_['variables'] = defvars.join('\n');
 };
 
-Blockly.PythonOcto.generateMachines = function () {
-	(Blockly.octopusMachines || []).forEach(function (machine) {
-		var conn = '';
-		if (!machine.connection || machine.connection.type == 'dummy') {
-			conn = 'dummy()';
-		} else if (machine.connection.type == 'tcp') {
-			conn = 'tcp()';
-		} else if (machine.connection.type == 'serial') {
-			conn = 'serial()';
-		}
-		Blockly.PythonOcto.definitions_['machines'].push(
-			machine.var_name + ' = ' + machine.type + '(' + conn + ')'
-		);
-	});
-};
+// Blockly.PythonOcto.generateMachines = function () {
+	// (Blockly.octopusMachines || []).forEach(function (machine) {
+		// var conn = '';
+		// if (!machine.connection || machine.connection.type == 'dummy') {
+			// conn = 'dummy()';
+		// } else if (machine.connection.type == 'tcp') {
+			// conn = 'tcp()';
+		// } else if (machine.connection.type == 'serial') {
+			// conn = 'serial()';
+		// }
+		// Blockly.PythonOcto.definitions_['machines'].push(
+			// machine.var_name + ' = ' + machine.type + '(' + conn + ')'
+		// );
+	// });
+// };
 
 /**
  * Prepend the generated code with the variable definitions.
@@ -112,18 +112,19 @@ Blockly.PythonOcto.finish = function(code) {
   // Convert the definitions dictionary into a list.
   var imports = [];
   var definitions = [];
-  var machines = [];
+  //var machines = [];
   for (var name in Blockly.PythonOcto.definitions_) {
     var def = Blockly.PythonOcto.definitions_[name];
-	if (name == 'machines') {
-	  machines = def;
-    } if (def.match(/^(from\s+\S+\s+)?import\s+\S+/)) {
+	if (def.match && def.match(/^(from\s+\S+\s+)?import\s+\S+/)) {
       imports.push(def);
     } else {
-      definitions.push(def);
+      if (def.join) {
+		def = def.join("\n");
+	  }
+	  definitions.push(def);
     }
   }
-  var allDefs = imports.join('\n') + '\n\n' + machines.join('\n') + '\n\n' + definitions.join('\n\n');
+  var allDefs = imports.join('\n') + '\n\n' + definitions.join('\n\n');
   return allDefs.replace(/\n\n+/g, '\n\n').replace(/\n*$/, '\n\n\n') + code;
 };
 

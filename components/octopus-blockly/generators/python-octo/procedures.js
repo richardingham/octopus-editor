@@ -71,11 +71,12 @@ Blockly.PythonOcto['procedures_defreturn'] = function(block) {
         Blockly.Variables.NAME_TYPE);
   }
   var code = 'def ' + funcName + '(' + args.join(', ') + '):\n' +
-      globals + branch + returnValue;
+      Blockly.PythonOcto.prefixLines(globals + branch + returnValue, Blockly.PythonOcto.INDENT);
   code = Blockly.PythonOcto.scrub_(block, code);
   Blockly.PythonOcto.definitions_[funcName] = code;
   return null;
 };
+
 
 // Defining a procedure without a return value uses the same generator as
 // a procedure with a return value.
@@ -121,4 +122,20 @@ Blockly.PythonOcto['procedures_ifreturn'] = function(block) {
     code += '  return\n';
   }
   return code;
+};
+
+Blockly.PythonOcto['procedures_namedsequence'] = function(block) {
+  var name = Blockly.PythonOcto.variableDB_.getName(block.getFieldValue('NAME'),
+      Blockly.Procedures.NAME_TYPE);
+  var branch = Blockly.PythonOcto.statementToCode(block, 'STACK') || 'sequence()';
+  if (Blockly.PythonOcto.STATEMENT_PREFIX) {
+    branch = Blockly.PythonOcto.prefixLines(
+        Blockly.PythonOcto.STATEMENT_PREFIX.replace(/%1/g,
+        '\'' + block.id + '\''), Blockly.PythonOcto.INDENT) + branch;
+  }
+  if (Blockly.PythonOcto.INFINITE_LOOP_TRAP) {
+    branch = Blockly.PythonOcto.INFINITE_LOOP_TRAP.replace(/%1/g,
+        '"' + block.id + '"') + branch;
+  }
+  return name + ' = ' + branch;
 };

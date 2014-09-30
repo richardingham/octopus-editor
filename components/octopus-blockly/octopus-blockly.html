@@ -2,6 +2,14 @@
 
 <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
 <script type="text/javascript" src="overrides.js"></script>
+<script type="text/javascript" src="ext/colourscheme.js"></script>
+<script type="text/javascript" src="ext/nameSet.js"></script>
+<script type="text/javascript" src="ext/flydown.js"></script>
+<script type="text/javascript" src="ext/field_procedure.js"></script>
+<script type="text/javascript" src="ext/field_flydown.js"></script>
+<script type="text/javascript" src="ext/field_global_flydown.js"></script>
+<script type="text/javascript" src="ext/field_parameter_flydown.js"></script>
+<script type="text/javascript" src="ext/field_lexical_variable.js"></script>
 
 <script type="text/javascript" src="blockly/msg/messages.js"></script>
 
@@ -10,11 +18,11 @@
 <script type="text/javascript" src="blocks/math.js"></script>
 <script type="text/javascript" src="blocks/text.js"></script>
 <script type="text/javascript" src="blocks/lists.js"></script>
-<script type="text/javascript" src="blocks/variables.js"></script>
-<script type="text/javascript" src="blocks/procedures.js"></script>
+<script type="text/javascript" src="blocks/lexical-variables.js"></script>
+<script type="text/javascript" src="blocks/lexical-procedures.js"></script>
 <script type="text/javascript" src="blocks/timing.js"></script>
-<script type="text/javascript" src="blocks/machines.js"></script>
-<script type="text/javascript" src="blocks/connections.js"></script>
+<script type="text/javascript" src="blocks/octopus-machines.js"></script>
+<script type="text/javascript" src="blocks/octopus-connections.js"></script>
 
 <script type="text/javascript" src="generators/python-octo.js"></script>
 <script type="text/javascript" src="generators/python-octo/control.js"></script>
@@ -31,6 +39,7 @@
 <template>
 
 <link rel="stylesheet" href="blockly.css">
+<link rel="stylesheet" href="ext.css">
 <style>
 :host {
 	position: absolute;
@@ -58,6 +67,7 @@
       <block type="machine_vapourtec_R2R4"></block>
       <block type="connection_tcp"></block>
       <block type="connection_serial"></block>
+      <block type="procedures_namedsequence"></block>
 	</category>
 	<category name="Control">
       <block type="controls_wait"></block>
@@ -199,7 +209,12 @@
         </value>
       </block>
     </category-->
-    <category name="Variables" custom="VARIABLE"></category>
+    <!--category name="Variables" custom="VARIABLE"></category-->
+    <category name="Variables">
+      <block type="global_declaration"></block>
+      <block type="lexical_variable_set"></block>
+      <block type="lexical_variable_get"></block>
+	</category>
     <category name="Functions" custom="PROCEDURE"></category>
   </xml>
   
