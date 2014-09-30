@@ -35,7 +35,10 @@ Blockly.Blocks['machine_vapourtec_R2R4'] = {
     this.setColour(0);
     this.appendDummyInput()
         .appendField("Vapourtec R2+/R4 ")
-        .appendField(new Blockly.FieldVariable('reactor'), "NAME");
+        //.appendField(new Blockly.FieldVariable('reactor'), "NAME");
+		
+        .appendField(new Blockly.FieldMachineFlydown('reactor', //Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_NAME,
+                                                    Blockly.FieldFlydown.DISPLAY_BELOW), 'NAME');
     this.appendValueInput("CONNECTION")
         .setCheck("machine-connection")
         .setAlign(Blockly.ALIGN_RIGHT)

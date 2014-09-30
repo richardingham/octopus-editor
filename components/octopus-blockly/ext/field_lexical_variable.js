@@ -60,7 +60,7 @@
  * @extends Blockly.FieldDropdown
  * @constructor
  */
-Blockly.FieldLexicalVariable = function(varname) {
+Blockly.FieldLexicalVariable = function(varname, globalsToInclude) {
  // Call parent's constructor.
   Blockly.FieldDropdown.call(this, Blockly.FieldLexicalVariable.dropdownCreate,
                                    Blockly.FieldLexicalVariable.dropdownChange);
@@ -68,6 +68,12 @@ Blockly.FieldLexicalVariable = function(varname) {
     this.setText(varname);
   } else {
     this.setText(Blockly.Variables.generateUniqueName());
+  }
+  
+  if (typeof globalsToInclude !== "undefined") {
+	this.globalsToInclude_ = globalsToInclude;
+  } else {
+	this.globalsToInclude_ = [Blockly.globalNamePrefix];
   }
 };
 
@@ -130,27 +136,25 @@ Blockly.FieldLexicalVariable.prototype.setCachedParent = function(parent) {
 // [lyn, 11/18/12] 
 // * Removed from prototype and stripped off "global" prefix (add it elsewhere)
 // * Add optional excluded block argument as in Neil's code to avoid global declaration being created
-Blockly.FieldLexicalVariable.getGlobalNames = function (optExcludedBlock) {
-  //if (Blockly.Instrument.useLynCacheGlobalNames && Blockly.WarningHandler.cacheGlobalNames) {
-  //  return Blockly.WarningHandler.cachedGlobalNames;
-  //}
+Blockly.FieldLexicalVariable.getGlobalNames = function (optExcludedBlock, globalsToInclude) {
   var globals = [];
   if (Blockly.mainWorkspace) {
-    var blocks = [];
-    //if (Blockly.Instrument.useLynGetGlobalNamesFix) {
-      blocks = Blockly.mainWorkspace.getTopBlocks(); // [lyn, 04/13/14] Only need top blocks, not all blocks!
-    //} else {
-    //  blocks = Blockly.mainWorkspace.getAllBlocks(); // [lyn, 11/10/12] Is there a better way to get workspace?
-    //}
+    var blocks = Blockly.mainWorkspace.getTopBlocks();
     for (var i = 0; i < blocks.length; i++) {
       var block = blocks[i];
       if ((block.type === 'global_declaration') && (block != optExcludedBlock)) {
-          globals.push(block.getFieldValue('NAME'));
+		  globals.push([Blockly.globalNamePrefix, block.getFieldValue('NAME')]);
+      } else if ((block.type.substring(0, 8) === 'machine_') && (block != optExcludedBlock)) {
+          globals.push([Blockly.machineNamePrefix, block.getFieldValue('NAME')]);
       }
     }
   }
-  return globals;
-}
+  if (typeof globalsToInclude !== "undefined") {
+	return globals.filter(function (item) { return globalsToInclude.indexOf(item[0]) >= 0; });
+  } else {
+	return globals;
+  }
+};
 
 /**
  * @this A FieldLexicalVariable instance
@@ -172,7 +176,7 @@ Blockly.FieldLexicalVariable.getGlobalNames = function (optExcludedBlock) {
 // * If Blockly.showPrefixToUser is true, non-global names are prefixed with labels
 //   specified in blocklyeditor.js
 Blockly.FieldLexicalVariable.prototype.getNamesInScope = function () {
-  return Blockly.FieldLexicalVariable.getNamesInScope(this.block_);
+  return Blockly.FieldLexicalVariable.getNamesInScope.call(this, this.block_);
 }
 
 /**
@@ -182,12 +186,12 @@ Blockly.FieldLexicalVariable.prototype.getNamesInScope = function () {
  */
 // [lyn, 11/15/13] Refactored to work on any block
 Blockly.FieldLexicalVariable.getNamesInScope = function (block) {
-  var globalNames = Blockly.FieldLexicalVariable.getGlobalNames(); // from global variable declarations
+  var globalNames = Blockly.FieldLexicalVariable.getGlobalNames(null, this.globalsToInclude_); // from global variable declarations
   // [lyn, 11/24/12] Sort and remove duplicates from namespaces
   globalNames = Blockly.LexicalVariable.sortAndRemoveDuplicates(globalNames);
   var allLexicalNames = Blockly.FieldLexicalVariable.getLexicalNamesInScope(block);
   // Return a list of all names in scope: global names followed by lexical ones.
-  return globalNames.map( Blockly.prefixGlobalMenuName ).concat(allLexicalNames);
+  return globalNames.map( Blockly.possiblyPrefixMenuName ).concat(allLexicalNames);
 }
 
 /**
@@ -415,8 +419,9 @@ Blockly.LexicalVariable.renameGlobal = function (newName) {
   // [lyn, 10/27/13] now check legality of identifiers
   newName = Blockly.LexicalVariable.makeLegalIdentifier(newName);
 
-  var globals = Blockly.FieldLexicalVariable.getGlobalNames(this.sourceBlock_); 
-    // this.sourceBlock excludes block being renamed from consideration
+  // this.sourceBlock_ excludes block being renamed from consideration
+  var globals = Blockly.FieldLexicalVariable.getGlobalNames(this.sourceBlock_).map(function (i) { return i[1]; }); 
+
   // Potentially rename declaration against other occurrences
   newName = Blockly.FieldLexicalVariable.nameNotIn(newName, globals);
   if ((! (newName === oldName)) && this.sourceBlock_.rendered) {

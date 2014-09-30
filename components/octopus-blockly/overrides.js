@@ -117,6 +117,9 @@ Blockly.isTargetInput_ = function(e) {
 };
 
 
+Blockly.machineNamePrefix = "machine"; // Todo - extract to lang
+Blockly.showPrefixToUser = true;
+
 
 /******************************************************************************
 [lyn, 12/23-27/2012, patch 16]
@@ -144,6 +147,18 @@ Blockly.isTargetInput_ = function(e) {
       }
     };
 
+  Blockly.possiblyPrefixMenuName = function (prefix, name) {
+    if (Array.isArray(prefix)) {
+	  name = prefix[1];
+	  prefix = prefix[0];
+	}
+    return (
+		Blockly.showPrefixToUser || prefix === Blockly.globalNamePrefix ?
+		(prefix + Blockly.menuSeparator) : 
+		""
+	) + name;
+  };
+
   // Curried for convenient use in generators/yail/variables.js
   Blockly.possiblyPrefixYailNameWith = // e.g., "param_x" vs "x"
     function (prefix) {
@@ -167,6 +182,7 @@ Blockly.isTargetInput_ = function(e) {
       var prefixes = [Blockly.procedureParameterPrefix,
                       Blockly.handlerParameterPrefix,
                       Blockly.localNamePrefix,
+					  Blockly.machineNamePrefix,
                       Blockly.loopParameterPrefix,
                       Blockly.loopRangeParameterPrefix]
       for (i=0; i < prefixes.length; i++) {
@@ -181,3 +197,6 @@ Blockly.isTargetInput_ = function(e) {
   }
 
   /******************************************************************************/
+  
+
+  
