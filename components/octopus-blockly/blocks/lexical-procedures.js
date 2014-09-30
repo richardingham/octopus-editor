@@ -5,6 +5,7 @@
  * @license
  * @fileoverview Procedure blocks for Blockly, modified for MIT App Inventor.
  * @author mckinney@mit.edu (Andrew F. McKinney)
+ * @author mail@richardingham.net (Richard Ingham)
  */
 
 /**
@@ -76,8 +77,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE, this);
     this.appendDummyInput('HEADER')
         .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_TITLE)
-        // [lyn, 10/27/13] Replaced Blockly.Procedures.rename by Blockly.AIProcedure.renameProcedure
-        .appendField(new Blockly.FieldTextInput(name, Blockly.AIProcedure.renameProcedure), 'NAME');
+        .appendField(new Blockly.FieldTextInput(name, Blockly.Procedures.rename), 'NAME');
     this.horizontalParameters = true; // horizontal by default
     this.appendStatementInput('STACK')
         .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_DO);
@@ -167,8 +167,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     var headerInput =
         this.appendDummyInput('HEADER')
             .appendField(Blockly.Msg.LANG_PROCEDURES_DEFNORETURN_DEFINE)
-            // [lyn, 10/28/13] Replaced Blockly.Procedures.rename by Blockly.AIProcedure.renameProcedure
-            .appendField(new Blockly.FieldTextInput(procName, Blockly.AIProcedure.renameProcedure), 'NAME');
+            .appendField(new Blockly.FieldTextInput(procName, Blockly.Procedures.rename), 'NAME');
 
     //add an input title for each argument
     //name each input after the block and where it appears in the block to reference it later
@@ -465,8 +464,7 @@ Blockly.Blocks['procedures_defreturn'] = {
         Blockly.Msg.PROCEDURES_DEFRETURN_PROCEDURE, this);
     this.appendDummyInput('HEADER')
         .appendField(Blockly.Msg.PROCEDURES_DEFRETURN_TITLE)
-      // [lyn, 10/27/13] Replaced Blockly.Procedures.rename by Blockly.AIProcedure.renameProcedure
-        .appendField(new Blockly.FieldTextInput(name, Blockly.AIProcedure.renameProcedure), 'NAME');
+        .appendField(new Blockly.FieldTextInput(name, Blockly.Procedures.rename), 'NAME');
     this.horizontalParameters = true; // horizontal by default
     this.appendValueInput('RETURN')
         .appendField(Blockly.Msg.PROCEDURES_DEFRETURN_RETURN);
@@ -885,8 +883,7 @@ Blockly.Blocks['procedures_namedsequence'] = {
         Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE, this);
     this.appendDummyInput('HEADER')
         .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_TITLE)
-        // [lyn, 10/27/13] Replaced Blockly.Procedures.rename by Blockly.AIProcedure.renameProcedure
-        .appendField(new Blockly.FieldTextInput(name, Blockly.AIProcedure.renameProcedure), 'NAME');
+        .appendField(new Blockly.FieldTextInput(name, Blockly.Procedures.rename), 'NAME');
     this.appendStatementInput('STACK')
         .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_DO);
     this.warnings = [{name:"checkEmptySockets",sockets:["STACK"]}];

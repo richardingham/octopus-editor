@@ -5,6 +5,7 @@
  * @license
  * @fileoverview Drop-down chooser of variables in the current lexical scope for App Inventor
  * @author fturbak@wellesley.com (Lyn Turbak)
+ * @author mail@richardingham.net (Richard Ingham)
  */
 
 'use strict';
@@ -759,16 +760,14 @@ Blockly.LexicalVariable.checkIdentifier = function(ident) {
   return {isLegal: isLegal, transformed: transformed};
 }
 
+// [richard, 30/SEP/2014] Relax rules on variable naming.
 Blockly.LexicalVariable.makeLegalIdentifier = function(ident) {
-  var check = Blockly.LexicalVariable.checkIdentifier(ident);
-  if (check.isLegal) {
-    return check.transformed;
-  } else if (check.transformed === '') {
+  if (ident === '') {
     return '_';
   } else {
-    return 'name' // Use identifier 'name' to replace illegal name
+    return ident;
   }
-}
+};
 
 // [lyn, 11/19/12] Given a block, return an Array of
 //   (0) all getter/setter blocks referring to name in block and its children

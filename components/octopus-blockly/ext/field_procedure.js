@@ -7,6 +7,7 @@
  * Methods to handle serialization of the blocks workspace
  *
  * @author sharon@google.com (Sharon Perl)
+ * @author mail@richardingham.net (Richard Ingham)
  */
 
 'use strict';
@@ -107,27 +108,4 @@ Blockly.AIProcedure.removeProcedureValues = function(name, workspace) {
       }
     }
   }
-};
-
-// [lyn, 10/27/13] Defined as a replacement for Blockly.Procedures.rename
-Blockly.AIProcedure.renameProcedure = function (newName) {
-  // this is bound to field_textinput object
-  var oldName = this.text_;
-
-  // [lyn, 10/27/13] now check legality of identifiers
-  newName = Blockly.LexicalVariable.makeLegalIdentifier(newName);
-
-  // [lyn, 10/28/13] Prevent two procedures from having the same name.
-  var procBlocks = Blockly.AIProcedure.getAllProcedureDeclarationBlocksExcept(this.sourceBlock_);
-  var procNames = procBlocks.map(function (decl) { return decl.getFieldValue('NAME'); });
-  newName = Blockly.FieldLexicalVariable.nameNotIn(newName, procNames);
-  // Rename any callers.
-  var blocks = this.sourceBlock_.workspace.getAllBlocks();
-  for (var x = 0; x < blocks.length; x++) {
-    var func = blocks[x].renameProcedure;
-    if (func) {
-      func.call(blocks[x], oldName, newName);
-    }
-  }
-  return newName;
 };
