@@ -29,21 +29,33 @@ goog.provide('Blockly.PythonOcto.variables');
 
 goog.require('Blockly.PythonOcto');
 
+// [lyn, 12/27/2012] Handle prefixes abstractly
+Blockly.PythonOcto.getVariableName = function(name){
+  var pair = Blockly.unprefixName(name);
+  var prefix = pair[0];
+  var unprefixedName = pair[1];
+  if (prefix === Blockly.globalNamePrefix) {
+    name = unprefixedName;
+  } else {
+    (Blockly.possiblyPrefixYailNameWith(prefix))(unprefixedName);
+  }
+  return name;
+};
 
 Blockly.PythonOcto['variables_get'] = function(block) {
   // Variable getter.
-  var code = Blockly.PythonOcto.variableDB_.getName(block.getFieldValue('VAR'),
-      Blockly.Variables.NAME_TYPE);
-  return [code, Blockly.PythonOcto.ORDER_ATOMIC];
+  var name = Blockly.PythonOcto.getVariableName(block.getFieldValue('VAR'));
+  name = Blockly.PythonOcto.variableDB_.getName(name, Blockly.Variables.NAME_TYPE);
+  return [name, Blockly.PythonOcto.ORDER_ATOMIC];
 };
 
 Blockly.PythonOcto['variables_set'] = function(block) {
   // Variable setter.
   var argument0 = Blockly.PythonOcto.valueToCode(block, 'VALUE',
       Blockly.PythonOcto.ORDER_NONE) || '0';
-  var varName = Blockly.PythonOcto.variableDB_.getName(block.getFieldValue('VAR'),
-      Blockly.Variables.NAME_TYPE);
-  return 'set(' + varName + ', ' + argument0 + ')';
+  var name = Blockly.PythonOcto.getVariableName(block.getFieldValue('VAR'));
+  name = Blockly.PythonOcto.variableDB_.getName(name, Blockly.Variables.NAME_TYPE);
+  return 'set(' + name + ', ' + argument0 + ')';
 };
 
 Blockly.PythonOcto['global_declaration'] = function(block) {
