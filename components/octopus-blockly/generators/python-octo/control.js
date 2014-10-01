@@ -100,3 +100,18 @@ Blockly.PythonOcto['controls_wait_until'] = function(block) {
   var code = 'wait_until(' + argument + ')';
   return code;
 };
+
+Blockly.PythonOcto['controls_run'] = function(block) {
+  var argument = Blockly.PythonOcto.valueToCode(block, 'STACK',
+      Blockly.PythonOcto.ORDER_NONE) || 'sequence()';
+  var code = 'run(' + argument + ')';
+  return code;
+};
+
+Blockly.PythonOcto['controls_runlater'] = function(block) {
+  var argument = Blockly.PythonOcto.valueToCode(block, 'STACK',
+      Blockly.PythonOcto.ORDER_NONE) || 'sequence()';
+  var code = 'run_later(' + argument + ')';
+  return code;
+};
+
