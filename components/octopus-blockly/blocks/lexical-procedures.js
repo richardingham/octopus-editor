@@ -71,7 +71,6 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   bodyInputName: 'STACK',
   tooltip: Blockly.Msg.PROCEDURES_DEFNORETURN_TOOLTIP,
   init: function() {
-    this.setHelpUrl(Blockly.Msg.PROCEDURES_DEFNORETURN_HELPURL);
     this.setColour(Blockly.PROCEDURE_CATEGORY_HUE);
     var name = Blockly.Procedures.findLegalName(
         Blockly.Msg.PROCEDURES_DEFNORETURN_PROCEDURE, this);
@@ -482,7 +481,7 @@ Blockly.Blocks['procedures_defreturn'] = {
   decompose: Blockly.Blocks.procedures_defnoreturn.decompose,
   compose: Blockly.Blocks.procedures_defnoreturn.compose,
   dispose: Blockly.Blocks.procedures_defnoreturn.dispose,
-  getProcedureDef: Blockly.Blocks.getProcedureDef,
+  getProcedureDef: Blockly.Blocks.procedures_defnoreturn.getProcedureDef,
   getVars: Blockly.Blocks.procedures_defnoreturn.getVars,
   declaredNames: Blockly.Blocks.procedures_defnoreturn.declaredNames,
   renameVar: Blockly.Blocks.procedures_defnoreturn.renameVar,
@@ -910,7 +909,7 @@ Blockly.Blocks['procedures_namedsequence'] = {
     // and that it DOES NOT have a return value.
     return [this.getFieldValue('NAME'),
             [], // no arguments
-           false]; // no return value.
+           "sequence"]; // no return value.
   },
   // [lyn, 11/24/12] return list of procedure body (if there is one)
   blocksInScope: function () {
@@ -918,3 +917,41 @@ Blockly.Blocks['procedures_namedsequence'] = {
     return (body && [body]) || [];
   }
 };
+
+Blockly.Blocks['procedures_callnamedsequence'] = {
+  // Call a procedure with a return value.
+  category: 'Procedures',  // Procedures are handled specially.
+  tooltip: Blockly.Msg.PROCEDURES_CALLRETURN_TOOLTIP,
+  init: function() {
+    this.setHelpUrl(Blockly.Msg.PROCEDURES_CALLRETURN_HELPURL);
+    this.setColour(Blockly.PROCEDURE_CATEGORY_HUE);
+    this.procNamesFxn = function(){return Blockly.AIProcedure.getNamedSequenceNames();};
+
+    this.procDropDown = new Blockly.FieldDropdown(this.procNamesFxn,Blockly.FieldProcedure.onChange);
+    this.procDropDown.block = this;
+    this.appendDummyInput()
+        .appendField(Blockly.Msg.PROCEDURES_CALLRETURN_CALL)
+        .appendField(this.procDropDown,"NAME");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.arguments_ = [];
+    this.quarkConnections_ = null;
+    this.quarkArguments_ = null;
+    this.errors = [{name:"checkIsInDefinition"},{name:"checkDropDownContainsValidValue",dropDowns:["NAME"]}];
+    Blockly.FieldProcedure.onChange.call(this.getField_("NAME"),this.getField_("NAME").getValue());
+  },
+  getProcedureCall: Blockly.Blocks.procedures_callnoreturn.getProcedureCall,
+  renameProcedure: Blockly.Blocks.procedures_callnoreturn.renameProcedure,
+  setProcedureParameters:
+      Blockly.Blocks.procedures_callnoreturn.setProcedureParameters,
+  mutationToDom: Blockly.Blocks.procedures_callnoreturn.mutationToDom,
+  domToMutation: Blockly.Blocks.procedures_callnoreturn.domToMutation,
+  renameVar: Blockly.Blocks.procedures_callnoreturn.renameVar,
+  procCustomContextMenu: Blockly.Blocks.procedures_callnoreturn.procCustomContextMenu,
+  removeProcedureValue: Blockly.Blocks.procedures_callnoreturn.removeProcedureValue,
+  // This generates a single generic call to 'call return' defaulting its value
+  // to the first procedure in the list. Calls for each procedure cannot be done here because the
+  // blocks have not been loaded yet (they are loaded in typeblock.js)
+  //typeblock: [{ translatedName: Blockly.Msg.LANG_PROCEDURES_CALLRETURN_TRANSLATED_NAME}]
+};
+

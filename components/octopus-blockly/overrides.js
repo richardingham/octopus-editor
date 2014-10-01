@@ -196,7 +196,88 @@ Blockly.showPrefixToUser = true;
     }
   }
 
-  /******************************************************************************/
+/******************************************************************************/
+
+/******************************************************************************
+Patch to enable new custom flyout menus.
+*/
+/**
+ * Find all user-created procedure definitions.
+ * @return {!Array.<!Array.<!Array>>} Pair of arrays, the
+ *     first contains procedures without return variables, the second with.
+ *     Each procedure is defined by a three-element list of name, parameter
+ *     list, and return value boolean.
+ */
+Blockly.Procedures.allProcedures = function() {
+  var blocks = Blockly.mainWorkspace.getAllBlocks();
+  var sequencesReturn = [];
+  var proceduresReturn = [];
+  var proceduresNoReturn = [];
+  for (var x = 0; x < blocks.length; x++) {
+    var func = blocks[x].getProcedureDef;
+    if (func) {
+      var tuple = func.call(blocks[x]);
+      if (tuple) {
+        if (tuple[2] == "sequence") {
+          sequencesReturn.push(tuple);
+        } else if (tuple[2]) {
+          proceduresReturn.push(tuple);
+        } else {
+          proceduresNoReturn.push(tuple);
+        }
+      }
+    }
+  }
+
+  proceduresNoReturn.sort(Blockly.Procedures.procTupleComparator_);
+  proceduresReturn.sort(Blockly.Procedures.procTupleComparator_);
+  return [proceduresNoReturn, proceduresReturn, sequencesReturn];
+};
+
+/**
+ * Construct the blocks required by the flyout for the procedure category.
+ * @param {!Array.<!Blockly.Block>} blocks List of blocks to show.
+ * @param {!Array.<number>} gaps List of widths between blocks.
+ * @param {number} margin Standard margin width for calculating gaps.
+ * @param {!Blockly.Workspace} workspace The flyout's workspace.
+ */
+Blockly.Procedures.flyoutCategory = function(blocks, gaps, margin, workspace) {
+  var defaultBlocks = ['procedures_defnoreturn', 'procedures_defreturn', 'procedures_ifreturn', 'procedures_namedsequence'];
+  for (var x = 0; x < defaultBlocks.length; x++) {
+    if (Blockly.Blocks[defaultBlocks[x]]) {
+      var block = Blockly.Block.obtain(workspace, defaultBlocks[x]);
+      block.initSvg();
+      blocks.push(block);
+      gaps.push(margin * 2);
+    }
+  }
+  if (gaps.length) {
+    // Add slightly larger gap between system blocks and user calls.
+    gaps[gaps.length - 1] = margin * 3;
+  }
+
+  function populateProcedures(procedureList, templateName) {
+    for (var x = 0; x < procedureList.length; x++) {
+      var block = Blockly.Block.obtain(workspace, templateName);
+      block.setFieldValue(procedureList[x][0], 'NAME');
+      var tempIds = [];
+      for (var t = 0; t < procedureList[x][1].length; t++) {
+        tempIds[t] = 'ARG' + t;
+      }
+      block.setProcedureParameters(procedureList[x][1], tempIds);
+      block.initSvg();
+      blocks.push(block);
+      gaps.push(margin * 2);
+    }
+  }
+
+  var tuple = Blockly.Procedures.allProcedures();
+  populateProcedures(tuple[0], 'procedures_callnoreturn');
+  populateProcedures(tuple[1], 'procedures_callreturn');
+  populateProcedures(tuple[2], 'procedures_callnamedsequence');
+};
+
+/******************************************************************************/
   
 
   

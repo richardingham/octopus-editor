@@ -51,9 +51,22 @@ Blockly.AIProcedure.getProcedureNames = function(returnValue) {
     var procName = topBlocks[i].getFieldValue('NAME')
     if(topBlocks[i].type == "procedures_defnoreturn" && !returnValue) {
       procNameArray.push([procName,procName]);
-    } else if (topBlocks[i].type == "procedures_namedsequence" && !returnValue) {
-      procNameArray.push([procName,procName]);
     } else if (topBlocks[i].type == "procedures_defreturn" && returnValue) {
+      procNameArray.push([procName,procName]);
+    }
+  }
+  if(procNameArray.length > 1 ){
+    procNameArray.splice(0,1);
+  }
+  return procNameArray;
+};
+
+Blockly.AIProcedure.getNamedSequenceNames = function () {
+  var topBlocks = Blockly.mainWorkspace.getTopBlocks();
+  var procNameArray = [Blockly.FieldProcedure.defaultValue];
+  for(var i=0;i<topBlocks.length;i++){
+    var procName = topBlocks[i].getFieldValue('NAME')
+    if (topBlocks[i].type == "procedures_namedsequence") {
       procNameArray.push([procName,procName]);
     }
   }

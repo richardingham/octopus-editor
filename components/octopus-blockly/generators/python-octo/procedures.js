@@ -105,7 +105,7 @@ Blockly.PythonOcto['procedures_callnoreturn'] = function(block) {
     args[x] = Blockly.PythonOcto.valueToCode(block, 'ARG' + x,
         Blockly.PythonOcto.ORDER_NONE) || 'None';
   }
-  var code = funcName + '(' + args.join(', ') + ')\n';
+  var code = funcName + '(' + args.join(', ') + ')';
   return code;
 };
 
@@ -138,4 +138,11 @@ Blockly.PythonOcto['procedures_namedsequence'] = function(block) {
         '"' + block.id + '"') + branch;
   }
   return name + ' = ' + branch;
+};
+
+Blockly.PythonOcto['procedures_callnamedsequence'] = function(block) {
+  // Insert a named sequence
+  var funcName = Blockly.PythonOcto.variableDB_.getName(block.getFieldValue('NAME'),
+      Blockly.Procedures.NAME_TYPE);
+  return funcName;
 };
