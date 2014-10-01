@@ -65,5 +65,20 @@ Blockly.Blocks['machine_vapourtec_R2R4'] = {
     if (Blockly.Names.equals(oldName, this.getFieldValue('NAME'))) {
       this.setFieldValue(newName, 'NAME');
     }
+  },
+  
+  getVariablesMenu: function(name, forSetter) {
+	return [
+	  ["Pump A", [name, "pump1"], forSetter, [
+	    ["Target", [name, "pump1", "target"]],
+	    ["Flow Rate", [name, "pump1", "rate"], forSetter],
+	    ["Pressure", [name, "pump1", "pressure"], forSetter]
+	  ]],
+	  ["Pump B", [name, "pump2"], forSetter, [
+	    ["Target", [name, "pump2", "target"]],
+	    ["Flow Rate", [name, "pump2", "rate"], forSetter],
+	    ["Pressure", [name, "pump2", "pressure"], forSetter]
+	  ]],
+	];
   }
 };

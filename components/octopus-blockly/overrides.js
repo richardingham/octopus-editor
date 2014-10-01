@@ -147,16 +147,18 @@ Blockly.showPrefixToUser = true;
       }
     };
 
-  Blockly.possiblyPrefixMenuName = function (prefix, name) {
-    if (Array.isArray(prefix)) {
-	  name = prefix[1];
-	  prefix = prefix[0];
+  Blockly.possiblyPrefixMenuName = function (menuitem) {
+    if (Array.isArray(menuitem) && menuitem.length > 1) {
+	  var prefix = menuitem[0];
+	  var name = (
+	  	Blockly.showPrefixToUser || prefix === Blockly.globalNamePrefix ?
+	  	(prefix + Blockly.menuSeparator) : 
+	  	""
+	  ) + menuitem[1];
+	  menuitem[0] = menuitem[1] = name;
 	}
-    return (
-		Blockly.showPrefixToUser || prefix === Blockly.globalNamePrefix ?
-		(prefix + Blockly.menuSeparator) : 
-		""
-	) + name;
+
+    return menuitem;
   };
 
   // Curried for convenient use in generators/yail/variables.js

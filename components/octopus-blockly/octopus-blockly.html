@@ -2,6 +2,15 @@
 
 <script type="text/javascript" src="blockly/blockly_compressed.js"></script>
 <script type="text/javascript" src="overrides.js"></script>
+
+<!-- import goog objects that aren't part of blockly_compressed -->
+<script type="text/javascript" src="goog/positioning.js"></script>
+<script type="text/javascript" src="goog/abstractposition.js"></script>
+<script type="text/javascript" src="goog/anchoredposition.js"></script>
+<script type="text/javascript" src="goog/anchoredviewportposition.js"></script>
+<script type="text/javascript" src="goog/submenurenderer.js"></script>
+<script type="text/javascript" src="goog/submenu.js"></script>
+
 <script type="text/javascript" src="ext/colourscheme.js"></script>
 <script type="text/javascript" src="ext/nameSet.js"></script>
 <script type="text/javascript" src="ext/flydown.js"></script>
@@ -14,13 +23,13 @@
 
 <script type="text/javascript" src="blockly/msg/messages.js"></script>
 
+<script type="text/javascript" src="blocks/lexical-variables.js"></script>
+<script type="text/javascript" src="blocks/lexical-procedures.js"></script>
 <script type="text/javascript" src="blocks/logic.js"></script>
 <script type="text/javascript" src="blocks/loops.js"></script>
 <script type="text/javascript" src="blocks/math.js"></script>
 <script type="text/javascript" src="blocks/text.js"></script>
 <script type="text/javascript" src="blocks/lists.js"></script>
-<script type="text/javascript" src="blocks/lexical-variables.js"></script>
-<script type="text/javascript" src="blocks/lexical-procedures.js"></script>
 <script type="text/javascript" src="blocks/timing.js"></script>
 <script type="text/javascript" src="blocks/octopus-machines.js"></script>
 <script type="text/javascript" src="blocks/octopus-connections.js"></script>
@@ -97,13 +106,7 @@
       <block type="math_trig"></block>
       <block type="math_constant"></block>
       <block type="math_number_property"></block>
-      <block type="math_change">
-        <value name="DELTA">
-          <block type="math_number">
-            <field name="NUM">1</field>
-          </block>
-        </value>
-      </block>
+      <block type="math_change"></block>
       <block type="math_round"></block>
       <block type="math_on_list"></block>
       <block type="math_modulo"></block>

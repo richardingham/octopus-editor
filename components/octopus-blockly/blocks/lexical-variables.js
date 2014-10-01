@@ -34,7 +34,7 @@ Blockly.Blocks['lexical_variable_get'] = {
   //helpUrl: Blockly.Msg.LANG_VARIABLES_GET_HELPURL,
   init: function() {
     this.setColour(330);
-    this.fieldVar_ = new Blockly.FieldLexicalVariable(" ", [Blockly.globalNamePrefix, Blockly.machineNamePrefix]);
+    this.fieldVar_ = new Blockly.FieldLexicalVariable(" ");
     this.fieldVar_.setBlock(this);
     this.appendDummyInput()
         .appendField('get') //Blockly.Msg.LANG_VARIABLES_GET_TITLE_GET)
@@ -54,9 +54,17 @@ Blockly.Blocks['lexical_variable_get'] = {
   },
   renameLexicalVar: function(oldName, newName) {
     // console.log("Renaming lexical variable from " + oldName + " to " + newName);
-    if (oldName === this.getFieldValue('VAR')) {
-        this.setFieldValue(newName, 'VAR');
-    }
+    var currentValue = this.getFieldValue('VAR');
+	if (oldName === currentValue) {
+      this.setFieldValue(newName, 'VAR');
+    } else if (Array.isArray(currentValue)) {
+	  // TODO: potential bug if variables other than machines are allowed to have sub-items.
+	  // This would require rewriting how variable references are stored.
+	  if (currentValue[0] == Blockly.unprefixName(oldName)[1]) {
+		currentValue[0] = Blockly.unprefixName(newName)[1];
+        this.setFieldValue(currentValue, 'VAR');
+	  }
+	}
   },
   renameFree: function (freeSubstitution) {
     var prefixPair = Blockly.unprefixName(this.getFieldValue('VAR'));
@@ -93,7 +101,7 @@ Blockly.Blocks['lexical_variable_set'] = {
   //helpUrl: Blockly.Msg.LANG_VARIABLES_SET_HELPURL, // *** [lyn, 11/10/12] Fix this
   init: function() {
     this.setColour(330); //Blockly.VARIABLE_CATEGORY_HUE);
-    this.fieldVar_ = new Blockly.FieldLexicalVariable(" ", [Blockly.globalNamePrefix]);
+    this.fieldVar_ = new Blockly.FieldLexicalVariable(" ", true);
     this.fieldVar_.setBlock(this);
     this.appendValueInput('VALUE')
         .appendField('set') //Blockly.Msg.LANG_VARIABLES_SET_TITLE_SET)
@@ -115,17 +123,8 @@ Blockly.Blocks['lexical_variable_set'] = {
   },
   renameLexicalVar: Blockly.Blocks.lexical_variable_get.renameLexicalVar,
   renameFree: function (freeSubstitution) {
-    // potentially rename the set variable
-    var prefixPair = Blockly.unprefixName(this.getFieldValue('VAR'));
-    var prefix = prefixPair[0];
-    // Only rename lexical (nonglobal) names
-    if (prefix !== Blockly.globalNamePrefix) {
-      var oldName = prefixPair[1];
-      var newName = freeSubstitution.apply(oldName);
-      if (newName !== oldName) {
-        this.renameLexicalVar(oldName, newName);
-      }
-    }
+    Blockly.Blocks.lexical_variable_get.renameFree.call(this, freeSubstitution);
+
     // [lyn, 06/26/2014] Don't forget to rename children!
     this.getChildren().map( function(blk) { Blockly.LexicalVariable.renameFree(blk, freeSubstitution); })
   },

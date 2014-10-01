@@ -10,6 +10,17 @@
 
 'use strict';
 
+goog.provide('Blockly.LexicalVariable');
+goog.provide('Blockly.FieldLexicalVariable');
+
+goog.require('goog.dom');
+goog.require('goog.events');
+goog.require('goog.style');
+goog.require('goog.ui.Menu');
+goog.require('goog.ui.MenuItem');
+goog.require('goog.ui.SubMenu');
+goog.require('goog.ui.MenuSeparator');
+
 /**
  * Lyn's History:
  *  *  [lyn, written 11/15-17/13 but added 07/01/14] Overhauled parameter renaming:
@@ -60,21 +71,17 @@
  * @extends Blockly.FieldDropdown
  * @constructor
  */
-Blockly.FieldLexicalVariable = function(varname, globalsToInclude) {
+Blockly.FieldLexicalVariable = function(varname, forSetter) {
  // Call parent's constructor.
-  Blockly.FieldDropdown.call(this, Blockly.FieldLexicalVariable.dropdownCreate,
-                                   Blockly.FieldLexicalVariable.dropdownChange);
+  Blockly.FieldDropdown.call(this, Blockly.FieldLexicalVariable.dropdownCreate);
+
   if (varname) {
     this.setText(varname);
   } else {
     this.setText(Blockly.Variables.generateUniqueName());
   }
-  
-  if (typeof globalsToInclude !== "undefined") {
-	this.globalsToInclude_ = globalsToInclude;
-  } else {
-	this.globalsToInclude_ = [Blockly.globalNamePrefix];
-  }
+
+  this.forSetter_ = !!forSetter;
 };
 
 // FieldLexicalVariable is a subclass of FieldDropdown.
@@ -86,7 +93,8 @@ goog.inherits(Blockly.FieldLexicalVariable, Blockly.FieldDropdown);
  * @return {string} Current text.
  */
 Blockly.FieldLexicalVariable.prototype.getValue = function() {
-  return this.getText();
+  return this.value_;
+  //return this.getText();
 };
 
 /**
@@ -95,7 +103,14 @@ Blockly.FieldLexicalVariable.prototype.getValue = function() {
  */
 Blockly.FieldLexicalVariable.prototype.setValue = function(text) {
   this.value_ = text;
-  this.setText(text);
+  if (text) {
+    if (Array.isArray(text)) {
+	  this.setText(text.join("."));
+    } else {
+      this.setText(text);
+	}
+    // Blockly.WarningHandler.checkErrors.call(this.sourceBlock_);
+  }
 };
 
 /**
@@ -136,7 +151,7 @@ Blockly.FieldLexicalVariable.prototype.setCachedParent = function(parent) {
 // [lyn, 11/18/12] 
 // * Removed from prototype and stripped off "global" prefix (add it elsewhere)
 // * Add optional excluded block argument as in Neil's code to avoid global declaration being created
-Blockly.FieldLexicalVariable.getGlobalNames = function (optExcludedBlock, globalsToInclude) {
+Blockly.FieldLexicalVariable.getGlobalNames = function (optExcludedBlock, forSetter) {
   var globals = [];
   if (Blockly.mainWorkspace) {
     var blocks = Blockly.mainWorkspace.getTopBlocks();
@@ -145,15 +160,12 @@ Blockly.FieldLexicalVariable.getGlobalNames = function (optExcludedBlock, global
       if ((block.type === 'global_declaration') && (block != optExcludedBlock)) {
 		  globals.push([Blockly.globalNamePrefix, block.getFieldValue('NAME')]);
       } else if ((block.type.substring(0, 8) === 'machine_') && (block != optExcludedBlock)) {
-          globals.push([Blockly.machineNamePrefix, block.getFieldValue('NAME')]);
+		  var name = block.getFieldValue('NAME');
+          globals.push([Blockly.machineNamePrefix, name, forSetter, block.getVariablesMenu(name, forSetter)]);
       }
     }
   }
-  if (typeof globalsToInclude !== "undefined") {
-	return globals.filter(function (item) { return globalsToInclude.indexOf(item[0]) >= 0; });
-  } else {
-	return globals;
-  }
+  return globals;
 };
 
 /**
@@ -186,12 +198,12 @@ Blockly.FieldLexicalVariable.prototype.getNamesInScope = function () {
  */
 // [lyn, 11/15/13] Refactored to work on any block
 Blockly.FieldLexicalVariable.getNamesInScope = function (block) {
-  var globalNames = Blockly.FieldLexicalVariable.getGlobalNames(null, this.globalsToInclude_); // from global variable declarations
+  var globalNames = Blockly.FieldLexicalVariable.getGlobalNames(null, this.forSetter_); // from global variable declarations
   // [lyn, 11/24/12] Sort and remove duplicates from namespaces
   globalNames = Blockly.LexicalVariable.sortAndRemoveDuplicates(globalNames);
   var allLexicalNames = Blockly.FieldLexicalVariable.getLexicalNamesInScope(block);
   // Return a list of all names in scope: global names followed by lexical ones.
-  return globalNames.map( Blockly.possiblyPrefixMenuName ).concat(allLexicalNames);
+  return globalNames.map( Blockly.possiblyPrefixMenuName ).concat(allLexicalNames.map(function (x) { return [x, x] }));
 }
 
 /**
@@ -300,30 +312,237 @@ Blockly.FieldLexicalVariable.dropdownCreate = function() {
   var variableList = this.getNamesInScope(); // [lyn, 11/10/12] Get all global, parameter, and local names
   // Variables are not language-specific, use the name as both the user-facing
   // text and the internal representation.
-  var options = [];
+  
   // [lyn, 11/10/12] Ensure variable list isn't empty
-  if (variableList.length == 0) variableList = [" "];
-  for (var x = 0; x < variableList.length; x++) {
-    options[x] = [variableList[x], variableList[x]];
-  }
-  return options;
+  if (variableList.length == 0) variableList = [[" ", " "]];
+  //for (var x = 0; x < variableList.length; x++) {
+  //  options[x] = [variableList[x], variableList[x]];
+  //}
+  return variableList;
 };
+
 
 /**
- * Event handler for a change in variable name.
- * // [lyn, 11/10/12] *** Not clear this needs to do anything for lexically scoped variables. 
- * Special case the 'New variable...' and 'Rename variable...' options.
- * In both of these special cases, prompt the user for a new name.
- * @param {string} text The selected dropdown menu option.
- * @this {!Blockly.FieldLexicalVariable}
+ * Create a dropdown menu under the text. This dropdown menu allows submenus
+ * for selecting machine components, and disabled / enabled states for 
+ * getters / setters.
+ * @private
  */
-Blockly.FieldLexicalVariable.dropdownChange = function(text) {
-  if (text) {
-    this.setText(text);
-    // Blockly.WarningHandler.checkErrors.call(this.sourceBlock_);
-  }
-};
+Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
+  Blockly.WidgetDiv.show(this, null);
+  var thisField = this;
+  var menu = new goog.ui.Menu();
+  var submenus = [];
 
+  // http://stackoverflow.com/questions/7837456/comparing-two-arrays-in-javascript
+  function compare (val1, val2) {
+    if (!Array.isArray(val1)) {
+	  return val1 == val2;
+	}
+
+    // if the other array is a falsy value, return
+    if (!val1)
+        return false;
+
+    // compare lengths - can save a lot of time
+    if (val1.length !== val2.length)
+        return false;
+
+    for (var i = 0, l = val1.length; i < l; i++) {
+        // Check if we have nested arrays
+        if (val1[i] instanceof Array && val2[i] instanceof Array) {
+            // recurse into the nested arrays
+            if (!compare(val1[i], val2[i]))
+                return false;
+        }
+        else if (val1[i] !== val2[i]) { 
+            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+            return false;
+        }
+    }
+    return true;
+  };
+
+  function callback(e) {
+    var menuItem = e.target;
+    if (menuItem) {
+      var value = menuItem.getValue();
+      if (thisField.changeHandler_) {
+        // Call any change handler, and allow it to override.
+        var override = thisField.changeHandler_(value);
+        if (override !== undefined) {
+          value = override;
+        }
+      }
+      if (value !== null) {
+        thisField.setValue(value);
+      }
+    }
+	Blockly.WidgetDiv.hideIfOwner(thisField);
+
+	// For some reason submenus are not removed automatically.
+	// This makes sure they are removed from the DOM.
+	for (var x = 0; x < submenus.length; x++) {
+	  submenus[x].dispose();
+	}
+  }
+
+  // Build a menu or submenu
+  function build (menu, options, subMenu) {
+    // If a submenu item is checked, all parent items will be checked.
+	// This value is returned by build() to enable this.
+	var checked = false;
+	var option, menuItem;
+
+	if (!subMenu && compare(options, [[" ", " "]])) {
+	  menuItem = new goog.ui.MenuItem("No variables defined");
+	  menuItem.setEnabled(false);
+ 	  menu.addChild(menuItem, true);
+	  options = [];
+	}
+
+    for (var x = 0; x < options.length; x++) {
+      option = options[x];
+	  
+	  // Separators are allowed.
+	  if (option == "separator") {
+	    menuItem = new goog.ui.MenuSeparator();
+	  } 
+	  
+	  // Everything else will be an array.
+	  else if (option.length && option.length > 1) {
+        var text = option[0];  // Human-readable text.
+        var value = option[1]; // Language-neutral value.
+	    var disabled = false;
+
+		// If this option should be disabled, true is passed in as the third value.
+	    if (option.length >= 3) {
+	  	  disabled = option[2];
+	    }
+
+		// The optional fourth value gives the list of submenu values.
+	    if (option.length === 4 && option[3].length) {
+	  	  menuItem = new goog.ui.SubMenu(text);
+		  var subChecked = false;
+
+		  // Unless the parent menu item is disabled, add an entry 
+		  // to allow the parent to be selected.
+		  if (!disabled) {
+		    var subMenuItem = new goog.ui.MenuItem(text);
+			var same = compare(value, thisField.value_);
+		    subMenuItem.setValue(value);
+            subMenuItem.setCheckable(true);
+            subMenuItem.setChecked(same);
+            subChecked |= same;
+	        menuItem.addItem(subMenuItem, true);
+	        menuItem.addItem(new goog.ui.MenuSeparator(), true);
+		  }
+
+		  subChecked |= build(menuItem, option[3], true);
+
+		  // If the parent item is "disabled" it should still be
+		  // added to the menu to allow child items to be selected.
+		  if (menuItem.getItemCount() > 0) {
+			disabled = false;
+		  }
+
+		  // If one of the child items is checked, the parent is checked.
+		  if (subChecked) {
+            menuItem.setCheckable(true);
+            menuItem.setChecked(true);
+		  }
+		  checked |= subChecked;
+
+		  // Add submenu to the list of menus that will be disposed.
+		  submenus.push(menuItem);
+	    } 
+		
+		// Just a regular menu item.
+		else {
+	      var same = compare(value, thisField.value_);
+          menuItem = new goog.ui.MenuItem(text); 
+          menuItem.setCheckable(true);
+          menuItem.setChecked(same);
+		  checked |= same;
+	    }
+
+        menuItem.setValue(value);
+	  }
+
+	  // "disabled" items are not added to the menu.
+	  // goog.ui.SubMenu and goog.ui.Menu use different
+	  // functions for adding children.
+	  if (!disabled) {
+	    if (subMenu) {
+	      menu.addItem(menuItem);
+        } else {
+		  menu.addChild(menuItem, true);
+	    }
+	  }
+    }
+
+	return checked;
+  }
+
+  var options = this.getOptions_();
+  build(menu, options);
+
+  // Listen for mouse/keyboard events.
+  goog.events.listen(menu, goog.ui.Component.EventType.ACTION, callback);
+  // Listen for touch events (why doesn't Closure handle this already?).
+  function callbackTouchStart(e) {
+    var control = this.getOwnerControl(/** @type {Node} */ (e.target));
+    // Highlight the menu item.
+    control.handleMouseDown(e);
+  }
+  function callbackTouchEnd(e) {
+    var control = this.getOwnerControl(/** @type {Node} */ (e.target));
+    // Activate the menu item.
+    control.performActionInternal(e);
+  }
+  menu.getHandler().listen(menu.getElement(), goog.events.EventType.TOUCHSTART,
+                           callbackTouchStart);
+  menu.getHandler().listen(menu.getElement(), goog.events.EventType.TOUCHEND,
+                           callbackTouchEnd);
+
+  // Record windowSize and scrollOffset before adding menu.
+  var windowSize = goog.dom.getViewportSize();
+  var scrollOffset = goog.style.getViewportPageOffset(document);
+  var xy = Blockly.getAbsoluteXY_(/** @type {!Element} */ (this.borderRect_));
+  var borderBBox = this.borderRect_.getBBox();
+  var div = Blockly.WidgetDiv.DIV;
+  menu.render(div);
+  var menuDom = menu.getElement();
+  Blockly.addClass_(menuDom, 'blocklyDropdownMenu');
+  // Record menuSize after adding menu.
+  var menuSize = goog.style.getSize(menuDom);
+
+  // Position the menu.
+  // Flip menu vertically if off the bottom.
+  if (xy.y + menuSize.height + borderBBox.height >=
+      windowSize.height + scrollOffset.y) {
+    xy.y -= menuSize.height;
+  } else {
+    xy.y += borderBBox.height;
+  }
+  if (Blockly.RTL) {
+    xy.x += borderBBox.width;
+    xy.x += Blockly.FieldDropdown.CHECKMARK_OVERHANG;
+    // Don't go offscreen left.
+    if (xy.x < scrollOffset.x + menuSize.width) {
+      xy.x = scrollOffset.x + menuSize.width;
+    }
+  } else {
+    xy.x -= Blockly.FieldDropdown.CHECKMARK_OVERHANG;
+    // Don't go offscreen right.
+    if (xy.x > windowSize.width + scrollOffset.x - menuSize.width) {
+      xy.x = windowSize.width + scrollOffset.x - menuSize.width;
+    }
+  }
+  Blockly.WidgetDiv.position(xy.x, xy.y, windowSize, scrollOffset);
+  menu.setAllowAutoFocus(true);
+  menuDom.focus();
+};
 
 // [lyn, 11/18/12]
 /**
@@ -537,7 +756,7 @@ Blockly.LexicalVariable.renameParamRenamingCapturables = function (sourceBlock, 
       throw "Blockly.LexicalVariable.renamingCapturables: oldName " + oldName +
           " is not in declarations {" + namesDeclaredHere.join(',') + "}";
     }
-    var namesDeclaredAbove = Blockly.FieldLexicalVariable.getNamesInScope(sourceBlock);
+    var namesDeclaredAbove = Blockly.FieldLexicalVariable.getNamesInScope(sourceBlock).map(function (x) { return x[1]; });
     var declaredNames = namesDeclaredHere.concat(namesDeclaredAbove);
     // Should really check which forbidden names are free vars in the body of declBlock.
     if (declaredNames.indexOf(newName) != -1) {

@@ -30,7 +30,16 @@ goog.provide('Blockly.PythonOcto.variables');
 goog.require('Blockly.PythonOcto');
 
 
-Blockly.PythonOcto.getVariableName_ = function(name){
+Blockly.PythonOcto.getVariableName_ = function(name) {
+  var tail;
+
+  // Operate on variable name if looking at an accessor.
+  if (Array.isArray(name)) {
+	tail = name.slice(1);
+	name = name[0];
+  }
+  
+  // Remove prefix
   var pair = Blockly.unprefixName(name);
   var prefix = pair[0];
   var unprefixedName = pair[1];
@@ -39,22 +48,29 @@ Blockly.PythonOcto.getVariableName_ = function(name){
   } else {
     name = (Blockly.possiblyPrefixYailNameWith(prefix))(unprefixedName);
   }
+  
+  // Sanitise name
+  name = Blockly.PythonOcto.variableDB_.getName(name, Blockly.Variables.NAME_TYPE);
+
+  // Append accessors
+  if (tail) {
+	name += "." + tail.join(".");
+  }
+
   return name;
 };
 
-Blockly.PythonOcto['variables_get'] = function(block) {
+Blockly.PythonOcto['lexical_variable_get'] = function(block) {
   // Variable getter.
   var name = Blockly.PythonOcto.getVariableName_(block.getFieldValue('VAR'));
-  name = Blockly.PythonOcto.variableDB_.getName(name, Blockly.Variables.NAME_TYPE);
   return [name, Blockly.PythonOcto.ORDER_ATOMIC];
 };
 
-Blockly.PythonOcto['variables_set'] = function(block) {
+Blockly.PythonOcto['lexical_variable_set'] = function(block) {
   // Variable setter.
   var argument0 = Blockly.PythonOcto.valueToCode(block, 'VALUE',
       Blockly.PythonOcto.ORDER_NONE) || '0';
   var name = Blockly.PythonOcto.getVariableName_(block.getFieldValue('VAR'));
-  name = Blockly.PythonOcto.variableDB_.getName(name, Blockly.Variables.NAME_TYPE);
   return 'set(' + name + ', ' + argument0 + ')';
 };
 
@@ -66,5 +82,3 @@ Blockly.PythonOcto['global_declaration'] = function(block) {
       Blockly.Variables.NAME_TYPE);
   return varName + ' = variable(' + argument0 + ')';
 };
-Blockly.PythonOcto['lexical_variable_set'] = Blockly.PythonOcto['variables_set'];
-Blockly.PythonOcto['lexical_variable_get'] = Blockly.PythonOcto['variables_get'];
