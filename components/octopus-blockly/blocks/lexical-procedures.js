@@ -501,9 +501,9 @@ Blockly.Blocks['procedures_mutatorcontainer'] = {
   init: function() {
     this.setColour(Blockly.PROCEDURE_CATEGORY_HUE);
     this.appendDummyInput()
-        .appendField(Blockly.Msg.LANG_PROCEDURES_MUTATORCONTAINER_TITLE);
+        .appendField(Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TITLE);
     this.appendStatementInput('STACK');
-    this.setTooltip(Blockly.Msg.LANG_PROCEDURES_MUTATORCONTAINER_TOOLTIP);
+    this.setTooltip(Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TOOLTIP);
     this.contextMenu = false;
   },
   // [lyn. 11/24/12] Set procBlock associated with this container.
@@ -542,11 +542,11 @@ Blockly.Blocks['procedures_mutatorarg'] = {
 //    }
     this.setColour(Blockly.PROCEDURE_CATEGORY_HUE);
     this.appendDummyInput()
-        .appendField(Blockly.Msg.LANG_PROCEDURES_MUTATORARG_TITLE)
+        .appendField(Blockly.Msg.PROCEDURES_MUTATORARG_TITLE)
         .appendField(new Blockly.FieldTextInput('x',Blockly.LexicalVariable.renameParam), 'NAME');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
-    this.setTooltip(Blockly.Msg.LANG_PROCEDURES_MUTATORARG_TOOLTIP);
+    this.setTooltip(Blockly.Msg.PROCEDURES_MUTATORARG_TOOLTIP);
     this.contextMenu = false;
   },
   // [lyn, 11/24/12] Return the container this mutator arg is in, or null if it's not in one.
