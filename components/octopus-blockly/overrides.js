@@ -113,7 +113,8 @@ Blockly.hideChaff = function(opt_allowToolbox) {
 Blockly.isTargetInput_ = function(e) {
   // Changed: Polymer element events bubble up with type as 'octopus-editor'.
   // The only keyboard events we should need to cancel are those coming from 'body'.
-  return !(e.currentTarget === Blockly.svg || e.target === document.body);
+  // Also need to check for Blockly.svg (editor background) or <rect> (bubbles).
+  return !(e.currentTarget === Blockly.svg || e.target === document.body || e.currentTarget.tagName === "rect");
 };
 
 
