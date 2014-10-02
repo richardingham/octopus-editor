@@ -22,6 +22,7 @@
 'use strict';
 
 goog.provide('Blockly.Variable');
+goog.provide('Blockly.VariableScope');
 //goog.provide('Blockly.Variables');
 
 // TODO(scr): Fix circular dependencies
@@ -29,7 +30,35 @@ goog.provide('Blockly.Variable');
 goog.require('Blockly.Toolbox');
 goog.require('Blockly.Workspace');
 
-Blockly.Variable = function () {
+Blockly.Variable = function (name, scope) {
+	this.name_ = name;
+	this.display_ = name;
+	this.scope_ = scope;
+	this.type_ = "all";
+	this.attributes_ = [];
+	this.blocks_ = [];
+};
 
-}
+Blockly.Variable.prototype.getName = function () {
+	return this.name_;
+};
+
+Blockly.Variable.prototype.getDisplay = function () {
+	return this.display_;
+};
+
+Blockly.Variable.prototype.setDisplay = function (display) {
+	this.display_ = display;
+	this.name_ = display.toLowerCase();   /// FIRST CHECK FOR DUPLICATES
+};
+
+Blockly.Variable.prototype.getScope = function () {
+	return this.scope_;
+};
+
+Blockly.Variable.prototype.rename = function () {
+	// TODO
+};
+
+
 
