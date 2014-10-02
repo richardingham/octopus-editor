@@ -552,13 +552,10 @@ Blockly.Blocks['procedures_mutatorarg'] = {
   // [lyn, 11/24/12] Return the container this mutator arg is in, or null if it's not in one.
   // Dynamically calculate this by walking up chain, because mutator arg might or might not
   // be in container stack.
+  // [lyn, 11/24/12] Cache most recent container block so can reference it upon removal from mutator arg stack
+  // [richard, 2/OCT/14] Refactor out into Block.getAncestor.
   getContainerBlock: function () {
-    var parent = this.getParent();
-    while (parent && ! (parent.type === "procedures_mutatorcontainer")) {
-      parent = parent.getParent();
-    }
-    // [lyn, 11/24/12] Cache most recent container block so can reference it upon removal from mutator arg stack
-    this.cachedContainerBlock_ = (parent && (parent.type === "procedures_mutatorcontainer") && parent) || null;
+    this.cachedContainerBlock_ = this.getAncestor("procedures_mutatorcontainer");
     return this.cachedContainerBlock_;
   },
   // [lyn, 11/24/12] Return the procedure associated with mutator arg is in, or null if there isn't one.
