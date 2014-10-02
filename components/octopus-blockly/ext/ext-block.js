@@ -32,3 +32,73 @@ Blockly.Block.prototype.getSurroundAncestor = function(type) {
   return block;
 };
 
+/**
+ * Return the variable scope of this block. i.e. the scope of the first
+ * surrounding ancestor of this that has a scope, unless thisBlockOnly
+ * is true, in which case null is returned if this block does not have 
+ * a scope.
+ * @param {boolean} thisBlockOnly Only consider this block.
+ * @return {Blockly.VariableScope} The variable scope.
+ */
+Blockly.Block.prototype.getVariableScope = function(thisBlockOnly) {
+  return this.variableScope || (thisBlockOnly ? 
+    null : 
+    this.getSurroundParent().getVariableScope()
+  );
+};
+
+function flatten(array) {
+  var index = -1,
+      length = array ? array.length : 0,
+      result = [],
+	  seen = [],
+	  extra = 0;
+
+  while (++index < length) {
+    var value = array[index];
+
+    if (value && typeof value == 'object' && typeof value.length == 'number') {
+      var val, name, valIndex = -1,
+          valLength = value.length,
+          resIndex = result.length - extra;
+
+      result.length += valLength;
+      seen.length += valLength;
+      while (++valIndex < valLength) {
+	    val = value[valIndex];
+		name = val.getName();               /// ???? Actually want to get the short name, not the namespaced name!!
+		if (seen.indexOf(name) >= 0) {
+          result[resIndex] = val;
+          seen[resIndex++] = name;
+		} else {
+		  extra++;
+		}
+      }
+    }
+  }
+  result.length -= extra;
+  return result;
+}
+
+/**
+ * Return all variables that are in scope for blocks within this one.
+ * @return {!Array.<Blockly.Variable>} The variables.
+ */
+Blockly.Block.prototype.getVariablesInScope = function() {
+  var scopes = [];
+  var block = this;
+  var scope = this.getVariableScope(true);
+
+  do {
+    if (scope) {
+      scopes.push(scope.getVariables());
+    }
+    block = block.getSurroundParent();
+    scope = block.getVariableScope(true);
+  } while (block);
+
+  scopes.push(Blockly.Variables.getGlobalScope().getVariables());
+
+  
+};
+
