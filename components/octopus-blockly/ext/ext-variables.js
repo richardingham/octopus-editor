@@ -121,6 +121,20 @@ Blockly.VariableScope.prototype.getName = function () {
 };
 
 /**
+ * Create a variable within this scope.
+ * @param {string} name (optional) name for variable. If no name is provided, one is generated.
+ * @return {Blockly.Variable} new variable.
+ */
+Blockly.VariableScope.prototype.addVariable = function (name) {
+	if (typeof name === "undefined" || name === "") {
+		name = this.generateUniqueName();
+	}
+	var variable = new Blockly.Variable(name, this);
+	this.variables.push(variable);
+	return variable;
+};
+
+/**
  * Return all variables defined in this scope.
  * @return {!Array.<Blockly.Variable>} Array of variables.
  */
@@ -134,7 +148,7 @@ Blockly.VariableScope.prototype.getVariables = function () {
 * If no unique name is located it will try 'i1' to 'z1', then 'i2' to 'z2' etc.
 * @return {string} New variable name.
 */
-Blockly.Variables.generateUniqueName = function () {
+Blockly.VariablesScope.prototype.generateUniqueName = function () {
   var variableList = this.getVariables().map(function (v) { return v.getVarName() });
   var newName = '';
   if (variableList.length) {
@@ -178,5 +192,5 @@ Blockly.Variables.generateUniqueName = function () {
   return newName;
 };
 
-Blockly.GlobalScope = Blockly.VariableScope("global", "variables");
+Blockly.GlobalScope = Blockly.VariableScope("global", "global");
 
