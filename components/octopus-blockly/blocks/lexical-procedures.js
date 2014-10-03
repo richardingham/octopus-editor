@@ -70,6 +70,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   helpUrl: Blockly.Msg.PROCEDURES_DEFNORETURN_HELPURL,
   bodyInputName: 'STACK',
   tooltip: Blockly.Msg.PROCEDURES_DEFNORETURN_TOOLTIP,
+  definesScope: true,
   init: function() {
     this.setColour(Blockly.PROCEDURE_CATEGORY_HUE);
     var name = Blockly.Procedures.findLegalName(
@@ -89,19 +90,51 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   onchange: function () {
     this.arguments_ = this.declaredNames(); // ensure arguments_ is in sync with paramFlydown fields
   },
+  
+  // updateParams_ logic:
+  // NB this is NOT a means to change the variable names.
+  // This can ONLY be done by changing the textfield in the FieldParameterFlydown, or (indirectly)
+  // by changing the field in the mutator which then changes the flydown field.
+  //
+  //  -> So all we have to do is figure out any reordering, removing or adding of fields (variables).
+  //
+  // (Note that this method is called by the compose() function after a workspaceChanged event in the 
+  // mutator workspace when a variable is renamed via the mutator textfield).
+  
+  // - if opt_params is given, come up with a new set of variables??
+  // - if paramIds_ is null, come up with new set of variables??
+  // - fields should contain vars and ids. Compose needs to update ids on fields as well.
+  //   AND - there needs to be no way to change the var names apart from the mutator UI and creation from XML.
+  // - pull all vars out, and store them with ids.
+  // - read new vars + ids, adding fields and renaming vars as necessary.
+  
+  
   updateParams_: function(opt_params) {  // make rendered block reflect the parameter names currently in this.arguments_
+    console.log("enter procedures_defnoreturn updateParams_()");
     // [lyn, 11/17/13] Added optional opt_params argument:
     //    If its falsey (null or undefined), use the existing this.arguments_ list
     //    Otherwise, replace this.arguments_ by opt_params
     // In either case, make rendered block reflect the parameter names in this.arguments_
-    if (opt_params) {
+	//
+	// [richard, 3-oct-2014] 
+    // - if opt_params is given, this is likely to mean that domToMutation has been called. Come up with a new set of variables
+    // - if paramIds_ is null, come up with new set of variables??
+    if (typeof opt_params !== "undefined" || typeof this.paramIds_ === "undefined") {
       this.arguments_ = opt_params;
+	  
+	  if (opt_params.length) {
+		console.log("Need to build a new set of variables?");
+	  }
+	  
+	  // Check if there are already variables.
+	  // Build a list.
+	  //
     }
-    // Check for duplicated arguments.
+	
+	// Check for duplicated arguments.
     // [lyn 10/10/13] Note that in blocks edited within AI2, duplicate parameter names should never occur
     //    because parameters are renamed to avoid duplication. But duplicates might show up
     //    in XML code hand-edited by user.
-    // console.log("enter procedures_defnoreturn updateParams_()");
     var badArg = false;
     var hash = {};
     for (var x = 0; x < this.arguments_.length; x++) {
@@ -116,6 +149,20 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     } else {
       this.setWarningText(null);
     }
+	
+////
+	var variable, currentVariables = {};
+	for (var x = 0, input; input = this.inputList[x]; x++) {
+      for (var y = 0, field; field = input.fieldRow[y]; y++) {
+        if (field.name && field.name.substr(0,3) === "VAR") {
+          variable = field.variable_;
+		  currentVariables[field.getText()] = variable;
+        }
+      }
+    }
+	console.log("Current fields: ", currentVariables);
+	console.log("Current args: ", this.arguments_);
+////
 
     var procName = this.getFieldValue('NAME');
     //save the first two input lines and the last input line
@@ -170,18 +217,31 @@ Blockly.Blocks['procedures_defnoreturn'] = {
 
     //add an input title for each argument
     //name each input after the block and where it appears in the block to reference it later
-    for (var i = 0; i < this.arguments_.length; i++) {
+	for (var i = 0; i < this.arguments_.length; i++) {
+	  var variable, name = this.arguments_[i];
+	  if (currentVariables[name]) {
+	    variable = currentVariables[name];
+		delete currentVariables[name];
+	  } else {
+	    variable = this.variableScope_.addVariable(name);
+	  }
+
       if (this.horizontalParameters) { // horizontal case
         headerInput.appendField(' ')
-                   .appendField(this.parameterFlydown(i), // [lyn, 10/10/13] Changed to param flydown
+                   .appendField(this.parameterFlydown(i, name, variable), // [lyn, 10/10/13] Changed to param flydown
                                 'VAR' + i); // Tag with param tag to make it easy to find later.
       } else { // vertical case
         this.appendDummyInput('VAR' + i)
              // .appendField(this.arguments_[i])
-             .appendField(this.parameterFlydown(i), 'VAR' + i)
+             .appendField(this.parameterFlydown(i, name, variable), 'VAR' + i)
              .setAlign(Blockly.ALIGN_RIGHT);
       }
     }
+
+	var namesToDelete = Object.keys(currentVariables);
+	for (var i = 0; i < namesToDelete.length; i++) {
+		this.variableScope_.removeVariable(namesToDelete[i]);
+	}
 
     //put the last two arguments back
     this.inputList = this.inputList.concat(bodyInput);
@@ -197,8 +257,8 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   },
   // [lyn, 10/26/13] Introduced this to correctly handle renaming of [(1) caller arg labels and
   // (2) mutatorarg in open mutator] when procedure parameter flydown name is edited.
-  parameterFlydown: function (paramIndex) { // Return a new procedure parameter flydown
-    var initialParamName = this.arguments_[paramIndex];
+  parameterFlydown: function (paramIndex, name, variable) { // Return a new procedure parameter flydown
+    var initialParamName = name;
     var procDecl = this; // Here, "this" is the proc decl block. Name it to use in function below
     var procWorkspace = this.workspace;
     var procedureParameterChangeHandler = function (newParamName) {
@@ -271,12 +331,14 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       }
       // console.log("exit procedureParameterChangeHandler");
     }
-    return new Blockly.FieldParameterFlydown(initialParamName,
+    var field = new Blockly.FieldParameterFlydown(initialParamName,
                                              true, // name is editable
                                              // [lyn, 10/27/13] flydown location depends on parameter orientation
                                              this.horizontalParameters ? Blockly.FieldFlydown.DISPLAY_BELOW
                                                                        : Blockly.FieldFlydown.DISPLAY_RIGHT,
                                              procedureParameterChangeHandler);
+	field.variable_ = variable;
+	return field;
   },
   setParameterOrientation: function(isHorizontal) {
     var params = this.getParameters();
@@ -457,6 +519,7 @@ Blockly.Blocks['procedures_defreturn'] = {
   helpUrl: Blockly.Msg.PROCEDURES_DEFRETURN_HELPURL,
   tooltip: Blockly.Msg.PROCEDURES_DEFRETURN_TOOLTIP,
   bodyInputName: 'RETURN',
+  definesScope: true,
   init: function() {
     this.setColour(Blockly.PROCEDURE_CATEGORY_HUE);
     var name = Blockly.Procedures.findLegalName(
@@ -584,6 +647,7 @@ Blockly.Blocks['procedures_mutatorarg'] = {
   // [lyn, 11/24/12] Check for situation in which mutator arg has been removed from stack,
   // and change all references to its name to ???.
   onchange: function() {
+	var scope = this.getProcBlock().getVariableScope(true);
     var paramName = this.getFieldValue('NAME');
     if (paramName) { // paramName is null when delete from stack
       // console.log("Mutatorarg onchange: " + paramName);
@@ -593,9 +657,11 @@ Blockly.Blocks['procedures_mutatorarg'] = {
       // console.log("Mutatorarg onchange: " + paramName
       //            + "; cachedContainer = " + JSON.stringify((cachedContainer && cachedContainer.type) || null)
       //            + "; container = " + JSON.stringify((container && container.type) || null));
+
       if ((! cachedContainer) && container) {
         // Event: added mutator arg to container stack
         // console.log("Mutatorarg onchange ADDED: " + paramName);
+		
         var declaredNames = this.declaredNames();
         var firstIndex = declaredNames.indexOf(paramName);
         if (firstIndex != -1) {

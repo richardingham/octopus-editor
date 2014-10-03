@@ -66,6 +66,8 @@ Blockly.FieldParameterFlydown.withChangeHanderDisabled= function (thunk) {
 
 // [lyn, 06/30/2014] Prevent infinite loops from change handlers on these fields!
 // Path of infinite loop: setText -> renameParam change handler -> renameBound (if renaming capturables) -> setText
+// DON'T DO ANYTHING IMPORTANT HERE - it is also called with text=null when the mutator arg is being disposed.
+// (this only doesn't cause problems due to withChangeHanderDisabled() (?))
 Blockly.FieldParameterFlydown.prototype.setText = function(text) {
   if (! this.alreadySettingText) {
     this.alreadySettingText = true;

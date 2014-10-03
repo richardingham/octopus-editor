@@ -41,10 +41,12 @@ Blockly.Block.prototype.getSurroundAncestor = function(type) {
  * @return {Blockly.VariableScope} The variable scope.
  */
 Blockly.Block.prototype.getVariableScope = function(thisBlockOnly) {
-  return this.variableScope || (thisBlockOnly ? 
-    null : 
-    this.getSurroundParent().getVariableScope()
-  );
+  if (thisBlockOnly) {
+    return this.variableScope_ || null;
+  }
+
+  var parent = this.getSurroundParent();
+  return this.variableScope_ || (parent && parent.getVariableScope()) || null;
 };
 
 Blockly.Block.prototype.flattenScopedVariableArray_ = function (array) {
@@ -107,8 +109,21 @@ Blockly.Block.prototype.getVariablesInScope = function() {
 Blockly.Block.prototype.fill_ = Blockly.Block.prototype.fill;
 Blockly.Block.prototype.fill = function(workspace, prototypeName) {
 	Blockly.Block.prototype.fill_.call(this, workspace, prototypeName);
-	
+
 	if (this.definesScope) {
-		this.scope_ = Blockly.VariableScope(this);
+		this.variableScope_ = new Blockly.VariableScope(this);
+	}
+
+	if (goog.isFunction(this.created)) {
+		this.created();
+	}
+};
+
+Blockly.Block.prototype.dispose_ = Blockly.Block.prototype.dispose;
+Blockly.Block.prototype.dispose = function() {
+	Blockly.Block.prototype.dispose_.apply(this, arguments);
+
+	if (goog.isFunction(this.disposed)) {
+		this.disposed();
 	}
 };

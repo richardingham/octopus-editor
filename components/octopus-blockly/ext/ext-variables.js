@@ -35,7 +35,7 @@ goog.require('Blockly.Workspace');
 Blockly.Variable = function (name, scope) {
 	// local.block23::myvar
 	// local.block23::myvar::subobj.subsubobj
-	this.name_ = name;     
+	this.setName(name);
 
 	this.scope_ = scope;
 	this.type_ = "all";
@@ -52,6 +52,10 @@ Blockly.Variable.prototype.setName = function (name) {
 	// to set a name with attributes without also specifying the namespace.
 	if (name.indexOf('::') < 0) {
 		name = this.scope_.getName() + '::' + name;
+	}
+
+	if (name === this.name_) {
+		return;
 	}
 
 	name = name.toLowerCase();     /// CHECK FOR DUPLICATES, remove special chars, etc.
@@ -97,10 +101,6 @@ Blockly.Variable.prototype.getScope = function () {
 	return this.scope_;
 };
 
-Blockly.Variable.prototype.rename = function () {
-	// TODO
-};
-
 
 Blockly.VariableScope = function (block, namespace) {
 	if (block === "global") {
@@ -122,16 +122,25 @@ Blockly.VariableScope.prototype.getName = function () {
 
 /**
  * Create a variable within this scope.
- * @param {string} name (optional) name for variable. If no name is provided, one is generated.
- * @return {Blockly.Variable} new variable.
+ * @param {string} name  Name for variable (optional). If no name is provided, one is generated.
+ * @return {Blockly.Variable} New variable.
  */
 Blockly.VariableScope.prototype.addVariable = function (name) {
 	if (typeof name === "undefined" || name === "") {
 		name = this.generateUniqueName();
 	}
 	var variable = new Blockly.Variable(name, this);
-	this.variables.push(variable);
+	this.variables_.push(variable);
 	return variable;
+};
+
+/**
+ * Delete a variable from this scope.
+ * @param {string} name  Name of variable.
+ * @return {Blockly.Variable}  New variable.
+ */
+Blockly.VariableScope.prototype.removeVariable = function (name) {
+	console.log("TODO: delete vars");
 };
 
 /**
@@ -143,13 +152,21 @@ Blockly.VariableScope.prototype.getVariables = function () {
 };
 
 /**
+ * Return all variables defined in this scope.
+ * @return {!Array.<Blockly.Variable>} Array of variables.
+ */
+Blockly.VariableScope.prototype.getVariableNames = function () {
+	return this.variables_.map(function (v) { return v.getVarName() });
+};
+
+/**
 * Return a new variable name that is not yet being used in this scope. This will try to
 * generate single letter variable names in the range 'i' to 'z' to start with.
 * If no unique name is located it will try 'i1' to 'z1', then 'i2' to 'z2' etc.
 * @return {string} New variable name.
 */
-Blockly.VariablesScope.prototype.generateUniqueName = function () {
-  var variableList = this.getVariables().map(function (v) { return v.getVarName() });
+Blockly.VariableScope.prototype.generateUniqueName = function () {
+  var variableList = this.getVariableNames();
   var newName = '';
   if (variableList.length) {
     variableList.sort(goog.string.caseInsensitiveCompare);
@@ -190,6 +207,68 @@ Blockly.VariablesScope.prototype.generateUniqueName = function () {
     newName = 'i';
   }
   return newName;
+};
+
+/**
+ * Possibly add a digit to name to disintguish it from names in list. 
+ * Used to guarantee that two names aren't the same in situations that prohibit this. 
+ * @param {string} name Proposed name.
+ * @param {string list} nameList List of names with which name can't conflict
+ * @return {string} Non-colliding name.
+ */
+Blockly.VariableScope.prototype.validName = function (name) {
+  // First find the nonempty digit suffixes of all names in nameList that have the same prefix as name
+  // e.g. for name "foo3" and nameList = ["foo", "bar4", "foo17", "bar" "foo5"]
+  // suffixes is ["17", "5"]
+  var nameList = this.getVariableNames();
+  var namePrefixSuffix = Blockly.FieldLexicalVariable.prefixSuffix(name);
+  var namePrefix = namePrefixSuffix[0];
+  var nameSuffix = namePrefixSuffix[1];
+  var emptySuffixUsed = false; // Tracks whether "" is a suffix. 
+  var isConflict = false; // Tracks whether nameSuffix is used 
+  var suffixes = [];   
+  for (var i = 0; i < nameList.length; i++) {
+    var prefixSuffix = Blockly.FieldLexicalVariable.prefixSuffix(nameList[i]);
+    var prefix = prefixSuffix[0];
+    var suffix = prefixSuffix[1];
+    if (prefix === namePrefix) {
+      if (suffix === nameSuffix) {
+        isConflict = true;
+      }
+      if (suffix === "") {
+        emptySuffixUsed = true;
+      } else {
+        suffixes.push(suffix); 
+      }
+    }
+  } 
+  if (! isConflict) {
+    // There is no conflict; just return name
+    return name; 
+  } else if (! emptySuffixUsed) {
+    // There is a conflict, but empty suffix not used, so use that
+    return namePrefix;
+  } else {
+    // There is a possible conflict and empty suffix is not an option.
+    // First sort the suffixes as numbers from low to high
+    var suffixesAsNumbers = suffixes.map( function (elt, i, arr) { return parseInt(elt,10); } )
+    suffixesAsNumbers.sort( function(a,b) { return a-b; } ); 
+    // Now find smallest number >= 2 that is unused
+    var smallest = 2; // Don't allow 0 or 1 an indices
+    var index = 0; 
+    while (index < suffixesAsNumbers.length) {
+      if (smallest < suffixesAsNumbers[index]) {
+        return namePrefix + smallest;
+      } else if (smallest == suffixesAsNumbers[index]) {
+        smallest++;
+        index++;
+      } else { // smallest is greater; move on to next one
+        index++;
+      }
+    }
+    // Only get here if exit loop
+    return namePrefix + smallest;
+  }
 };
 
 Blockly.GlobalScope = Blockly.VariableScope("global", "global");
