@@ -47,35 +47,34 @@ Blockly.Block.prototype.getVariableScope = function(thisBlockOnly) {
   );
 };
 
-function flatten(array) {
+Blockly.Block.prototype.flattenScopedVariableArray_ = function (array) {
   var index = -1,
       length = array ? array.length : 0,
       result = [],
-	  seen = [],
-	  extra = 0;
+      seen = [],
+      extra = 0;
 
   while (++index < length) {
     var value = array[index];
 
-    if (value && typeof value == 'object' && typeof value.length == 'number') {
-      var val, name, valIndex = -1,
-          valLength = value.length,
-          resIndex = result.length - extra;
+    var val, name, valIndex = -1,
+        valLength = value.length,
+        resIndex = result.length - extra;
 
-      result.length += valLength;
-      seen.length += valLength;
-      while (++valIndex < valLength) {
-	    val = value[valIndex];
-		name = val.getName();               /// ???? Actually want to get the short name, not the namespaced name!!
-		if (seen.indexOf(name) >= 0) {
-          result[resIndex] = val;
-          seen[resIndex++] = name;
-		} else {
-		  extra++;
-		}
+    result.length += valLength;
+    seen.length += valLength;
+    while (++valIndex < valLength) {
+      val = value[valIndex];
+      name = val.getVarName();
+      if (seen.indexOf(name) >= 0) {
+        result[resIndex] = val;
+        seen[resIndex++] = name;
+      } else {
+        extra++;
       }
     }
   }
+
   result.length -= extra;
   return result;
 }
@@ -85,9 +84,10 @@ function flatten(array) {
  * @return {!Array.<Blockly.Variable>} The variables.
  */
 Blockly.Block.prototype.getVariablesInScope = function() {
-  var scopes = [];
-  var block = this;
-  var scope = this.getVariableScope(true);
+  var scopes = [],
+      variables,
+      block = this,
+      scope = this.getVariableScope(true);
 
   do {
     if (scope) {
@@ -99,6 +99,16 @@ Blockly.Block.prototype.getVariablesInScope = function() {
 
   scopes.push(Blockly.Variables.getGlobalScope().getVariables());
 
-  
+  variables = this.flattenScopedVariableArray_(scopes);
+
+  return variables;
 };
 
+Blockly.Block.prototype.fill_ = Blockly.Block.prototype.fill;
+Blockly.Block.prototype.fill = function(workspace, prototypeName) {
+	Blockly.Block.prototype.fill_.call(this, workspace, prototypeName);
+	
+	if (this.definesScope) {
+		this.scope_ = Blockly.VariableScope(this);
+	}
+};
