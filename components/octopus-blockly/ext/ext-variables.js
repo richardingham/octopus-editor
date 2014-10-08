@@ -33,14 +33,15 @@ goog.require('Blockly.Toolbox');
 goog.require('Blockly.Workspace');
 
 Blockly.Variable = function (name, scope) {
-	// local.block23::myvar
-	// local.block23::myvar::subobj.subsubobj
-	this.setName(name);
-
+	this.name_ = "";
 	this.scope_ = scope;
 	this.type_ = "all";
 	this.attributes_ = [];
 	this.blocks_ = [];
+
+	// local.block23::myvar
+	// local.block23::myvar::subobj.subsubobj
+	this.setName(name);
 };
 
 Blockly.Variable.prototype.getName = function () {
@@ -48,38 +49,50 @@ Blockly.Variable.prototype.getName = function () {
 };
 
 Blockly.Variable.prototype.setName = function (name) {
+	var varName;
+	name = name.toLowerCase();     // TODO: CHECK FOR DUPLICATES, remove special chars, etc.
+
 	// Check that there is a namespace. This assumes that no-one will try
 	// to set a name with attributes without also specifying the namespace.
 	if (name.indexOf('::') < 0) {
+		varName = name;
 		name = this.scope_.getName() + '::' + name;
+	} else {
+		varName = name.split('::')[1];
 	}
 
 	if (name === this.name_) {
 		return;
 	}
 
-	name = name.toLowerCase();     /// CHECK FOR DUPLICATES, remove special chars, etc.
+	if (!this.scope_.isAvailableName(varName)) {
+		varName = this.scope_.validName(varName);
+		name = this.scope_.getName() + '::' + varName;
+	}
 
-	this.name_ = name;  
+	var split = name.split('::');
+	split.length = 3;
+
+	this.name_ = name;
+	this.varName_ = varName;
+	this.split_ = split;
 	return name;
 };
 
 Blockly.Variable.prototype.splitName_ = function () {
-	var split = this.name_.split('::');
-	split.length = 3;
-	return split;
+	return this.split_;
 };
 
 Blockly.Variable.prototype.getNamespace = function () {
-	return this.name_.split('::')[0];
+	return this.split_[0];
 };
 
 Blockly.Variable.prototype.getVarName = function () {
-	return this.splitName_()[1];
+	return this.varName_;
 };
 
 Blockly.Variable.prototype.getAttribute = function () {
-	return this.splitName_()[2];
+	return this.split_[2];
 };
 
 // This function should be overridden by anything that
@@ -140,7 +153,27 @@ Blockly.VariableScope.prototype.addVariable = function (name) {
  * @return {Blockly.Variable}  New variable.
  */
 Blockly.VariableScope.prototype.removeVariable = function (name) {
-	console.log("TODO: delete vars");
+	var v = this.variables_;
+	for (var i = 0; i < v.length; i++) {
+		if (v[i].varName_ === name) {
+			v.splice(i, 1);
+			i--;
+		}
+	}
+};
+
+/**
+ * Return variable defined in this scope with the desired name.
+ * @return {Blockly.Variable | null} The variable.
+ */
+Blockly.VariableScope.prototype.getVariable = function (name) {
+	var v = this.variables_;
+	for (var i = 0; i < v.length; i++) {
+		if (v[i].varName_ === name) {
+			return v[i];
+		}
+	}
+	return null;
 };
 
 /**
@@ -157,6 +190,111 @@ Blockly.VariableScope.prototype.getVariables = function () {
  */
 Blockly.VariableScope.prototype.getVariableNames = function () {
 	return this.variables_.map(function (v) { return v.getVarName() });
+};
+
+/**
+ * Return all variables defined in this scope.
+ * @return {!Array.<Blockly.Variable>} Array of variables.
+ */
+Blockly.VariableScope.prototype.isAvailableName = function (name) {
+	return (this.getNamesInScope().indexOf(name) === -1);
+};
+
+/**
+ * Return all variables defined in this scope.
+ * @return {!Array.<Blockly.Variable>} Array of variables.
+ */
+Blockly.VariableScope.prototype.getNamesInScope = function () {
+	return this.getVariablesInScope().concat(
+		this.getVariablesInChildScopes()
+	).map(function (v) { return v.getVarName() });
+};
+
+Blockly.VariableScope.prototype.flattenScopedVariableArray_ = function (array) {
+  var index = -1,
+      length = array ? array.length : 0,
+      result = [],
+      seen = [],
+      extra = 0;
+
+  while (++index < length) {
+    var value = array[index];
+
+    var val, name, valIndex = -1,
+        valLength = value.length,
+        resIndex = result.length - extra;
+
+    result.length += valLength;
+    seen.length += valLength;
+    while (++valIndex < valLength) {
+      val = value[valIndex];
+      name = val.getVarName();
+      if (seen.indexOf(name) >= 0) {
+        result[resIndex] = val;
+        seen[resIndex++] = name;
+      } else {
+        extra++;
+      }
+    }
+  }
+
+  result.length -= extra;
+  return result;
+}
+
+/**
+ * Return all variables that are in scope for blocks within this one.
+ * @return {!Array.<Blockly.Variable>} The variables.
+ */
+Blockly.VariableScope.prototype.getVariablesInScope = function () {
+  var scope, scopes = [],
+      variables,
+      block = this.block_;
+
+  do {
+    scope = block.getVariableScope(true);
+    if (scope) {
+      scopes.push(scope.getVariables());
+    }
+    block = block.getSurroundParent();
+  } while (block);
+
+  if (Blockly.GlobalScope) {
+    scopes.push(Blockly.GlobalScope.getVariables());
+  }
+
+  variables = this.flattenScopedVariableArray_(scopes);
+
+  return variables;
+};
+
+/**
+ * Return all variables that defined in blocks within this one.
+ * @return {!Array.<Blockly.Variable>} The variables.
+ */
+Blockly.VariableScope.prototype.getVariablesInChildScopes = function () {
+  var blocks = [], variables = [];
+  if (goog.isFunction(this.block_.blocksInScope)) {
+    blocks = this.block_.blocksInScope();
+  }
+
+  var scope, block, scopeVars;
+
+  for (var i = 0; i < blocks.length; i++) {
+    block = blocks[i];
+	if (block.childBlocks_.length) {
+	  Array.push.apply(blocks, block.childBlocks_);
+	}
+	scope = block.getVariableScope(true);
+    if (scope) {
+	  scopeVars = scope.getVariables();
+	  for (var j = 0; j < scopeVars.length; j++) {
+		variables.push(scopeVars[i]);
+	  }
+	}
+  }
+
+  return variables;
 };
 
 /**
@@ -210,7 +348,7 @@ Blockly.VariableScope.prototype.generateUniqueName = function () {
 };
 
 /**
- * Possibly add a digit to name to disintguish it from names in list. 
+ * Possibly add a digit to name to distinguish it from names in list. 
  * Used to guarantee that two names aren't the same in situations that prohibit this. 
  * @param {string} name Proposed name.
  * @param {string list} nameList List of names with which name can't conflict

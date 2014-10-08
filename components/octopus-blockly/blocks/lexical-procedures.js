@@ -119,12 +119,12 @@ Blockly.Blocks['procedures_defnoreturn'] = {
 	// [richard, 3-oct-2014] 
     // - if opt_params is given, this is likely to mean that domToMutation has been called. Come up with a new set of variables
     // - if paramIds_ is null, come up with new set of variables??
-    if (typeof opt_params !== "undefined" || typeof this.paramIds_ === "undefined") {
+    if (typeof opt_params !== "undefined") { // || typeof this.paramIds_ === "undefined") {
       this.arguments_ = opt_params;
 	  
-	  if (opt_params.length) {
-		console.log("Need to build a new set of variables?");
-	  }
+	 // if (opt_params.length) {
+	//	console.log("Need to build a new set of variables?", opt_params);
+	 // }
 	  
 	  // Check if there are already variables.
 	  // Build a list.
@@ -150,7 +150,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       this.setWarningText(null);
     }
 	
-////
+/*///
 	var variable, currentVariables = {};
 	for (var x = 0, input; input = this.inputList[x]; x++) {
       for (var y = 0, field; field = input.fieldRow[y]; y++) {
@@ -162,7 +162,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     }
 	console.log("Current fields: ", currentVariables);
 	console.log("Current args: ", this.arguments_);
-////
+///*/
 
     var procName = this.getFieldValue('NAME');
     //save the first two input lines and the last input line
@@ -218,17 +218,20 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     //add an input title for each argument
     //name each input after the block and where it appears in the block to reference it later
 	for (var i = 0; i < this.arguments_.length; i++) {
-	  var variable, name = this.arguments_[i];
-	  if (currentVariables[name]) {
+	  var name = this.arguments_[i];  //, variable = this.variableScope_.getVariable(name);
+	  //if (!variable) {
+	   // variable = this.variableScope_.addVariable(name);
+	  //}
+	  /*if (currentVariables[name]) {
 	    variable = currentVariables[name];
 		delete currentVariables[name];
 	  } else {
-	    variable = this.variableScope_.addVariable(name);
-	  }
+	    
+	  }*/
 
       if (this.horizontalParameters) { // horizontal case
         headerInput.appendField(' ')
-                   .appendField(this.parameterFlydown(i, name, variable), // [lyn, 10/10/13] Changed to param flydown
+                   .appendField(this.parameterFlydown(i, name), // [lyn, 10/10/13] Changed to param flydown
                                 'VAR' + i); // Tag with param tag to make it easy to find later.
       } else { // vertical case
         this.appendDummyInput('VAR' + i)
@@ -238,10 +241,10 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       }
     }
 
-	var namesToDelete = Object.keys(currentVariables);
+	/*var namesToDelete = Object.keys(currentVariables);
 	for (var i = 0; i < namesToDelete.length; i++) {
 		this.variableScope_.removeVariable(namesToDelete[i]);
-	}
+	}*/
 
     //put the last two arguments back
     this.inputList = this.inputList.concat(bodyInput);
@@ -257,7 +260,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   },
   // [lyn, 10/26/13] Introduced this to correctly handle renaming of [(1) caller arg labels and
   // (2) mutatorarg in open mutator] when procedure parameter flydown name is edited.
-  parameterFlydown: function (paramIndex, name, variable) { // Return a new procedure parameter flydown
+  parameterFlydown: function (paramIndex, name) { // Return a new procedure parameter flydown
     var initialParamName = name;
     var procDecl = this; // Here, "this" is the proc decl block. Name it to use in function below
     var procWorkspace = this.workspace;
@@ -301,9 +304,19 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       //
       // we instead do:
       var newArguments = procDecl.arguments_;
+	  var oldParamName = newArguments[paramIndex];
+      var variable = procDecl.getVariableScope().getVariable(oldParamName);
+      var procName = procDecl.getFieldValue('NAME');
+
+      if (newParamName === oldParamName) {
+        return;
+      }
+
       newArguments[paramIndex] = newParamName;
 
-      var procName = procDecl.getFieldValue('NAME');
+      if (variable) {
+        variable.setName(newParamName);
+      }
 
       // 1. Change all callers so label reflects new name
       Blockly.Procedures.mutateCallers(procName, procWorkspace, newArguments, procDecl.paramIds_);
@@ -337,7 +350,6 @@ Blockly.Blocks['procedures_defnoreturn'] = {
                                              this.horizontalParameters ? Blockly.FieldFlydown.DISPLAY_BELOW
                                                                        : Blockly.FieldFlydown.DISPLAY_RIGHT,
                                              procedureParameterChangeHandler);
-	field.variable_ = variable;
 	return field;
   },
   setParameterOrientation: function(isHorizontal) {
@@ -361,11 +373,13 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     return container;
   },
   domToMutation: function(xmlElement) {
-    var params = [];
+    var params = [], scope = this.variableScope_, name;
     var children = goog.dom.getChildren(xmlElement);
     for (var x = 0, childNode; childNode = children[x]; x++) {
       if (childNode.nodeName.toLowerCase() == 'arg') {
-        params.push(childNode.getAttribute('name'));
+        name = childNode.getAttribute('name');
+        params.push(name);
+		scope.addVariable(name);
       }
     }
     this.horizontalParameters = xmlElement.getAttribute('vertical_parameters') !== "true";
@@ -384,6 +398,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       this.paramIds_.push(paramBlock.id); // [lyn, 10/26/13] Added
       paramBlock.initSvg();
       paramBlock.setFieldValue(this.arguments_[x], 'NAME');
+	  paramBlock.variable_ = this.variableScope_.getVariable(this.arguments_[x]);
       // Store the old location.
       paramBlock.oldLocation = x;
       connection.connect(paramBlock.previousConnection);
@@ -532,7 +547,7 @@ Blockly.Blocks['procedures_defreturn'] = {
         .appendField(Blockly.Msg.PROCEDURES_DEFRETURN_RETURN);
     this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
     this.arguments_ = [];
-    //this.warnings = [{name:"checkEmptySockets",sockets:["RETURN"]}];
+    this.warnings = [{name:"checkEmptySockets",sockets:["RETURN"]}];
   },
   onchange: Blockly.Blocks.procedures_defnoreturn.onchange,
   // [lyn, 11/24/12] return list of procedure body (if there is one)
@@ -580,7 +595,7 @@ Blockly.Blocks['procedures_mutatorcontainer'] = {
   },
   // [lyn. 11/24/12] Return list of param names in this container
   // Invariant: there should be no duplicates!
-  declaredNames: function () {
+  /*declaredNames: function () {
     var paramNames = [];
     var paramBlock = this.getInputTargetBlock('STACK');
     while (paramBlock) {
@@ -589,7 +604,7 @@ Blockly.Blocks['procedures_mutatorcontainer'] = {
                    paramBlock.nextConnection.targetBlock();
     }
     return paramNames;
-  }
+  }*/
 };
 
 Blockly.Blocks['procedures_mutatorarg'] = {
@@ -606,7 +621,8 @@ Blockly.Blocks['procedures_mutatorarg'] = {
     this.setColour(Blockly.PROCEDURE_CATEGORY_HUE);
     this.appendDummyInput()
         .appendField(Blockly.Msg.PROCEDURES_MUTATORARG_TITLE)
-        .appendField(new Blockly.FieldTextInput('x',Blockly.LexicalVariable.renameParam), 'NAME');
+        //.appendField(new Blockly.FieldTextInput('x',Blockly.LexicalVariable.renameParam), 'NAME');
+        .appendField(new Blockly.FieldTextInput('x', this.renamed), 'NAME');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setTooltip(Blockly.Msg.PROCEDURES_MUTATORARG_TOOLTIP);
@@ -618,47 +634,85 @@ Blockly.Blocks['procedures_mutatorarg'] = {
   // [lyn, 11/24/12] Cache most recent container block so can reference it upon removal from mutator arg stack
   // [richard, 2/OCT/14] Refactor out into Block.getAncestor.
   getContainerBlock: function () {
-    this.cachedContainerBlock_ = this.getAncestor("procedures_mutatorcontainer");
+    if (!this.cachedContainerBlock_) {
+      this.cachedContainerBlock_ = this.getAncestor("procedures_mutatorcontainer");
+    }
     return this.cachedContainerBlock_;
   },
   // [lyn, 11/24/12] Return the procedure associated with mutator arg is in, or null if there isn't one.
   // Dynamically calculate this by walking up chain, because mutator arg might or might not
   // be in container stack.
   getProcBlock: function () {
-    var container = this.getContainerBlock();
+	var container = this.getContainerBlock();
     return (container && container.getProcBlock()) || null;
   },
   // [lyn, 11/24/12] Return the declared names in the procedure associated with mutator arg,
   // or the empty list if there isn't one.
   // Dynamically calculate this by walking up chain, because mutator arg might or might not
   // be in container stack.
-  declaredNames: function () {
+/*  declaredNames: function () {
     var container = this.getContainerBlock();
     return (container && container.declaredNames()) || [];
-  },
+  },*/
   // [lyn, 11/24/12] Return the blocks in scope of proc params in the the procedure associated with mutator arg,
   // or the empty list if there isn't one.
   // Dynamically calculate this by walking up chain, because mutator arg might or might not
   // be in container stack.
-  blocksInScope: function () {
+/*  blocksInScope: function () {
     var proc = this.getProcBlock();
     return (proc && proc.blocksInScope()) || [];
+  },*/
+  getScope: function () {
+    var procBlock = this.getProcBlock();
+    if (this.isInFlyout || !procBlock) {
+      return;
+    }
+    return procBlock.getVariableScope(true);
+  },  
+  renamed: function (newName) {
+    if (this.variable_) {
+      this.variable_.setName(newName);
+	  newName = this.variable_.getVarName();
+    }
+	return newName;
+  },  
+  created: function () {
+    var scope = this.getScope();
+    if (!scope || this.variable_) {
+      return;
+    }
+    var paramName = this.getFieldValue('NAME');
+    var newName = scope.validName(paramName);
+    if (newName !== paramName) {
+      this.setFieldValue(newName, 'NAME');
+    }
+    this.variable_ = scope.addVariable(newName);
+  },
+  disposed: function () {
+    var scope = this.getScope();
+    if (!scope) {
+      return;
+    }
+    scope.removeVariable(this.variable_.getVarName());
+    delete this.variable_;
   },
   // [lyn, 11/24/12] Check for situation in which mutator arg has been removed from stack,
   // and change all references to its name to ???.
   onchange: function() {
-	var scope = this.getProcBlock().getVariableScope(true);
-    var paramName = this.getFieldValue('NAME');
-    if (paramName) { // paramName is null when delete from stack
+    var paramName = this.getFieldValue('NAME'); // paramName is null when deleting from stack
+    if (paramName && !this.cachedContainerBlock_) { 
       // console.log("Mutatorarg onchange: " + paramName);
-      var cachedContainer = this.cachedContainerBlock_;
-      var container = this.getContainerBlock(); // Order is important; this must come after cachedContainer
-                                                // since it sets cachedContainerBlock_
+      // Order is important; this must come after cachedContainer
+      // since it sets cachedContainerBlock_
+	  if (this.getContainerBlock()) {
+		this.created();
+	  }
+	}
       // console.log("Mutatorarg onchange: " + paramName
       //            + "; cachedContainer = " + JSON.stringify((cachedContainer && cachedContainer.type) || null)
       //            + "; container = " + JSON.stringify((container && container.type) || null));
 
-      if ((! cachedContainer) && container) {
+     /* if ((! cachedContainer) && container) {
         // Event: added mutator arg to container stack
         // console.log("Mutatorarg onchange ADDED: " + paramName);
 		
@@ -673,7 +727,7 @@ Blockly.Blocks['procedures_mutatorarg'] = {
             this.setFieldValue(newName, 'NAME');
           }
         }
-      } /* else if (cachedContainer && (! container)) {
+      } *//* else if (cachedContainer && (! container)) {
         // Event: removed mutator arg from container stack
         // [lyn, 11/24/12] Mutator arg has been removed from stack. Change all references to its name to ???
         // console.log("Mutatorarg onchange REMOVED: " + paramName);
@@ -694,7 +748,7 @@ Blockly.Blocks['procedures_mutatorarg'] = {
           }
         }
       }*/
-    }
+    //}
   }
 };
 
