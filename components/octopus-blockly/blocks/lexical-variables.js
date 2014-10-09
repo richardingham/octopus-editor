@@ -65,9 +65,13 @@ Blockly.Blocks['lexical_variable_get'] = {
   //domToMutation: function(xmlElement) { // Handler getters for event parameters specially (to support i8n)
   //  Blockly.LexicalVariable.eventParamDomToMutation(this, xmlElement);
   //},
+  getVariable: function () {
+	var scope = this.getVariableScope();
+	return scope && scope.getScopedVariable(this.getFieldValue('VAR'));
+  },
   getVars: function() {
     return [this.getFieldValue('VAR')];
-  },
+  },/*
   renameLexicalVar: function(oldName, newName) {
     // console.log("Renaming lexical variable from " + oldName + " to " + newName);
     var currentValue = this.getFieldValue('VAR');
@@ -104,7 +108,7 @@ Blockly.Blocks['lexical_variable_get'] = {
     } else {
       return new Blockly.NameSet();
     }
-  },
+  },*/
   //typeblock: [{ translatedName: Blockly.Msg.LANG_VARIABLES_GET_TITLE_GET + Blockly.Msg.LANG_VARIABLES_VARIABLE }]
 };
 
@@ -134,10 +138,14 @@ Blockly.Blocks['lexical_variable_set'] = {
   //domToMutation: function(xmlElement) { // Handler setters for event parameters specially (to support i8n)
  //   Blockly.LexicalVariable.eventParamDomToMutation(this, xmlElement);
   //},
+  getVariable: function () {
+	var scope = this.getVariableScope();
+	return scope && scope.getScopedVariable(this.getFieldValue('VAR'));
+  },
   getVars: function() {
     return [this.getFieldValue('VAR')];
   },
-  renameLexicalVar: Blockly.Blocks.lexical_variable_get.renameLexicalVar,
+  /*renameLexicalVar: Blockly.Blocks.lexical_variable_get.renameLexicalVar,
   renameFree: function (freeSubstitution) {
     Blockly.Blocks.lexical_variable_get.renameFree.call(this, freeSubstitution);
 
@@ -156,6 +164,6 @@ Blockly.Blocks['lexical_variable_set'] = {
       result.insert(oldName);
     }
     return result;
-  },
+  },*/
   //typeblock: [{ translatedName: Blockly.Msg.LANG_VARIABLES_SET_TITLE_SET + Blockly.Msg.LANG_VARIABLES_VARIABLE }]
 };

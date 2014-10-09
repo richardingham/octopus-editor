@@ -132,7 +132,7 @@ Blockly.VariableScope = function (block, namespace) {
 	} else {
 		this.global_ = false;
 		this.block_ = block;
-		this.namespace_ = 'local.block' + block.id;
+		this.namespace_ = 'local';
 	}
 
 	this.variables_ = [];
@@ -220,6 +220,40 @@ Blockly.VariableScope.prototype.getNamesInScope = function () {
 	return this.getVariablesInScope().concat(
 		this.getVariablesInChildScopes()
 	).map(function (v) { return v.getVarName() });
+};
+
+/**
+ * Find a variable with the given name in the available scopes.
+ * @return {Blockly.Variable} The variable.
+ */
+Blockly.VariableScope.prototype.getScopedVariable = function (name) {
+	var split = name.split('::') 
+	if (split.length > 1 && split[0].substr(0, 6) === "global") {
+		return Blockly.GlobalScope.getVariable(split[1]);
+	} else if (!this.block_) {
+		return;
+	} else {
+		name = split[+(split.length > 1)];
+
+		var variable = this.getVariable(name), 
+			scope,
+			block = this.block_.getSurroundParent();
+
+		if (variable) {
+			return variable;
+		}
+
+		while (block) {
+			scope = block.getVariableScope(true);
+			if (scope) {
+				variable = this.getVariable(name);
+				if (variable) {
+					return variable;
+				}
+			}
+			block = block.getSurroundParent();
+		}
+	}
 };
 
 Blockly.VariableScope.prototype.flattenScopedVariableArray_ = function (array) {

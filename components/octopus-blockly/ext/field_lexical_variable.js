@@ -103,21 +103,25 @@ Blockly.FieldLexicalVariable.prototype.getValue = function() {
  */
 Blockly.FieldLexicalVariable.prototype.setValue = function (variable) {
   if (this.block_ && this.block_.isInFlyout) {
-    this.setText(variable);
+    this.value_ = variable;
+	this.setText(variable);
 	return;
   }
   if (typeof variable === "string" && this.block_) {
     var scope = this.block_.getVariableScope();
-    variable = scope.getVariable(variable);
+    var scopedVariable = scope.getScopedVariable(variable);
+	if (scopedVariable) {
+	  variable = scopedVariable;
+	}
   }
   if (!variable || typeof variable === "string") {
     this.value_ = variable || "";
-    this.block_.variable_ = null;
+    //this.block_.variable_ = null;
     this.setText(variable || "");
     return;
   }
   this.value_ = variable.getName();
-  this.block_.variable_ = variable;
+  //this.block_.variable_ = variable;
   this.setText(variable.getVarName());
   // Blockly.WarningHandler.checkErrors.call(this.sourceBlock_);
 };
@@ -206,35 +210,21 @@ Blockly.FieldLexicalVariable.prototype.getNamesInScope = function () {
  * @returns {list} A list of all global and lexical names in scope at the given block.
  *   Global names are listed in sorted order before lexical names in sorted order.
  */
-// [lyn, 11/15/13] Refactored to work on any block
-Blockly.FieldLexicalVariable.getNamesInScope = function (block) {
-  var globalNames = Blockly.FieldLexicalVariable.getGlobalNames(null, this.forSetter_); // from global variable declarations
-  // [lyn, 11/24/12] Sort and remove duplicates from namespaces
-  globalNames = Blockly.LexicalVariable.sortAndRemoveDuplicates(globalNames);
-  var allLexicalNames = Blockly.FieldLexicalVariable.getLexicalNamesInScope(block);
-  // Return a list of all names in scope: global names followed by lexical ones.
-  return globalNames.map( Blockly.possiblyPrefixMenuName ).concat(allLexicalNames.map(function (x) { return [x, x] }));
-}
-
-// [lyn, 11/15/13] Refactored to work on any block
 Blockly.FieldLexicalVariable.getNamesInScope = function (block) {
 
-  var variables = Blockly.GlobalScope.getVariables();
+  var variables = Blockly.GlobalScope.getVariables().slice();
 
-  //var globalNames = Blockly.FieldLexicalVariable.getGlobalNames(null, this.forSetter_); // from global variable declarations
-  //globalNames = Blockly.LexicalVariable.sortAndRemoveDuplicates(globalNames);
-  
   if (block) {
 	var allLexicalNames = block.getVariableScope().getVariablesInScope();
 	if (allLexicalNames.length > 0) {
-	  variables = variables.concat("separator", allLexicalNames);
+	  if (variables.length > 0) {
+	    variables.push("separator");
+	  }
+	  variables = variables.concat(allLexicalNames);
 	}
   }
   
   return variables;
-  
-  // Return a list of all names in scope: global names followed by lexical ones.
-  return globalNames.map( Blockly.possiblyPrefixMenuName ).concat(allLexicalNames.map(function (x) { return [x, x] }));
 }
 
 /**
@@ -659,6 +649,7 @@ Blockly.LexicalVariable = {};
 // (none were allowed before), and to replace empty string by '_'.
 // Without special handling of empty string, the connection between a declaration field and
 // its references is lots.
+/*
 Blockly.LexicalVariable.renameGlobal = function (newName) {
 
   // this is bound to field_textinput object 
@@ -688,7 +679,7 @@ Blockly.LexicalVariable.renameGlobal = function (newName) {
     }
   }
   return newName;
-};
+};*/
 
 /**
  * Rename the old name currently in this field to newName in the block assembly rooted
@@ -713,6 +704,7 @@ Blockly.LexicalVariable.renameGlobal = function (newName) {
 // its references is lost.
 //
 // [lyn, 11/15/13] Refactored monolithic renameParam into parts that are useful on their own
+/*
 Blockly.LexicalVariable.renameParam = function (newName) {
 
   var htmlInput = Blockly.FieldTextInput.htmlInput_;
@@ -730,7 +722,7 @@ Blockly.LexicalVariable.renameParam = function (newName) {
   return Blockly.LexicalVariable.renameParamFromTo(this.sourceBlock_, oldName, newName, false);
   // Default should be false (as above), but can also play with true:
   // return Blockly.LexicalVariable.renameParamFromTo(this.sourceBlock_, oldName, newName, true);
-}
+}*/
 
 /**
  * [lyn, written 11/15/13, installed 07/01/14]
@@ -756,7 +748,7 @@ Blockly.LexicalVariable.renameParam = function (newName) {
  *   to avoid variable capture with both external declarations (declared above the
  *   declaration of this name) or internal declarations (declared inside the scope
  *   of this name).
- */
+ *//*
 Blockly.LexicalVariable.renameParamFromTo = function (block, oldName, newName, renameCapturables) {
   if (block.type && block.type.indexOf("mutator") != -1) { // Handle mutator blocks specially
     return Blockly.LexicalVariable.renameParamWithoutRenamingCapturables(block, oldName, newName, []);
@@ -766,7 +758,7 @@ Blockly.LexicalVariable.renameParamFromTo = function (block, oldName, newName, r
   } else {
     return Blockly.LexicalVariable.renameParamWithoutRenamingCapturables(block, oldName, newName, []);
   }
-}
+}*/
 
 /**
  * [lyn, written 11/15/13, installed 07/01/14]
@@ -777,7 +769,7 @@ Blockly.LexicalVariable.renameParamFromTo = function (block, oldName, newName, r
  * @param sourceBlock  the root source block containing the declaration of oldName
  * @param oldName
  * @param newName
- */
+ *//*
 Blockly.LexicalVariable.renameParamRenamingCapturables = function (sourceBlock, oldName, newName) {
   if (newName !== oldName) { // Do nothing if names are the same
     var namesDeclaredHere = sourceBlock.declaredNames ? sourceBlock.declaredNames() : [];
@@ -802,14 +794,14 @@ Blockly.LexicalVariable.renameParamRenamingCapturables = function (sourceBlock, 
       }
     }
   }
-}
+}*/
 
 /**
  * [lyn, written 11/15/13, installed 07/01/14]
  * Rename all free variables in this block according to the given renaming
  * @param block: any block
  * @param freeRenaming: a dictionary (i.e., object) mapping old names to new names
- */
+ *//*
 Blockly.LexicalVariable.renameFree = function (block, freeSubstitution) {
   if (block) { // If block is falsey, do nothing.
     if (block.renameFree) {  // should be defined on every declaration block
@@ -818,14 +810,14 @@ Blockly.LexicalVariable.renameFree = function (block, freeSubstitution) {
       block.getChildren().map( function(blk) { Blockly.LexicalVariable.renameFree(blk, freeSubstitution); } );
     }
   }
-}
+}*/
 
 /**
  * [lyn, written 11/15/13, installed 07/01/14]
  * Return a nameSet of all free variables in the given block
  * @param block
  * @returns (NameSet) set of all free names in block
- */
+ *//*
 Blockly.LexicalVariable.freeVariables = function (block) {
   var result = [];
   if (!block) { // input and next block slots might not empty
@@ -838,7 +830,7 @@ Blockly.LexicalVariable.freeVariables = function (block) {
   }
   // console.log("freeVariables(" + (block ? block.type : "*empty-socket*") + ") = " + result.toString());
   return result;
-}
+}*/
 
 /**
  * [lyn, written 11/15/13, installed 07/01/14] Refactored from renameParam
@@ -852,7 +844,7 @@ Blockly.LexicalVariable.freeVariables = function (block) {
  *   to avoid variable capture with both external declarations (declared above the
  *   declaration of this name) or internal declarations (declared inside the scope
  *   of this name).
- */
+ *//*
 Blockly.LexicalVariable.renameParamWithoutRenamingCapturables = function (sourceBlock, oldName, newName, OKNewNames) {
   if (oldName === newName) {
     return oldName;
@@ -900,24 +892,17 @@ Blockly.LexicalVariable.renameParamWithoutRenamingCapturables = function (source
   var conflicts = Blockly.LexicalVariable.sortAndRemoveDuplicates(capturables.concat(declaredNames));
   newName = Blockly.FieldLexicalVariable.nameNotIn(newName, conflicts);
 
-  /* console.log("LYN: rename Param: oldName = " + oldName + "; newName = " + newName
-   + "; sourcePrefix = " + sourcePrefix
-   + "; capturables = " + JSON.stringify(capturables)
-   + "; declaredNames = " + JSON.stringify(declaredNames)
-   + "; conflicts = " + JSON.stringify(conflicts)
-   + "; blocksToRename = " + JSON.stringify(blocksToRename.map( function(elt) { return elt.type; })));
-   */
   if (! (newName === oldName)) { // Special case: if newName is oldName, we're done!
     // [lyn, 12/27/2012] I don't understand what this code is for.
     //  I think it had something to do with locals that has now been repaired? 
-    /* var oldNameInDeclaredNames = false;
-      for (var i = 0; i < declaredNames.length; i++) {
-      if(oldName === declaredNames[i]){
-        oldNameInDeclaredNames = true;
-      }
-    }
-    if(!oldNameInDeclaredNames){ 
-    */
+    //  var oldNameInDeclaredNames = false;
+      // for (var i = 0; i < declaredNames.length; i++) {
+      // if(oldName === declaredNames[i]){
+        // oldNameInDeclaredNames = true;
+      // }
+    // }
+    // if(!oldNameInDeclaredNames){ 
+    // 
     var oldNameValid = (declaredNames.indexOf(oldName) != -1);
     if(!oldNameValid) {
       // Rename getters and setters
@@ -933,7 +918,7 @@ Blockly.LexicalVariable.renameParamWithoutRenamingCapturables = function (source
     }
   }
   return newName;
-}
+}*/
 
 /**
  * [lyn, written 11/15/13, installed 07/01/14] Refactored from renameParam()
@@ -947,7 +932,7 @@ Blockly.LexicalVariable.renameParamWithoutRenamingCapturables = function (source
  *          (b) all names declared in a parent of the oldName declaration that are referenced in the scope of oldName.
  *       In the case where prefixes are used (e.g., "param a", "index i, "local x")
  *       this is a list of *unprefixed* names.
- */
+ *//*
 Blockly.LexicalVariable.renameParamWithoutRenamingCapturablesInfo = function (sourceBlock, oldName, sourcePrefix) {
   // var sourceBlock = this; // The block containing the declaration of oldName
     // sourceBlock is block in which name is being changed. Can be one of:
@@ -984,7 +969,7 @@ Blockly.LexicalVariable.renameParamWithoutRenamingCapturablesInfo = function (so
   }
   capturables = Blockly.LexicalVariable.sortAndRemoveDuplicates(capturables);
   return [blocksToRename, capturables];
-}
+}*/
 
 /**
  * [richard, 30/SEP/14]
@@ -1021,6 +1006,7 @@ Blockly.LexicalVariable.makeLegalIdentifier = function(ident) {
   }
 };
 
+/*
 // [lyn, 11/19/12] Given a block, return an Array of
 //   (0) all getter/setter blocks referring to name in block and its children
 //   (1) all (unprefixed) names within block that would be captured if name were renamed to one of those names. 
@@ -1126,15 +1112,8 @@ Blockly.LexicalVariable.referenceResult = function (block, name, prefix, env) {
       }
     }
   }
-  /* console.log("referenceResult from block of type " + block.type + 
-             " with name " + name +
-             " with prefix " + prefix +
-             " with env " + JSON.stringify(env) +
-             ": [" + JSON.stringify(blocksToRename.map( function(elt) { return elt.type; })) +
-              ", " + JSON.stringify(capturables) + "]");
-  */
   return [blocksToRename,capturables];
-};
+};*/
 
 Blockly.LexicalVariable.sortAndRemoveDuplicates = function (strings) {
   var sorted = strings.sort();
@@ -1189,7 +1168,7 @@ Blockly.LexicalVariable.stringListsEqual = function (strings1, strings2) {
  * For getters and setters of event parameters, creates an "eventparam" mutation in the XML
  * that distinguishes them from other getters and setters. This mutations "knows"
  * the default (untranslated = English) name of the event parameter.
- */
+ *//*
 Blockly.LexicalVariable.eventParamMutationToDom = function (block) {
   var prefixPair = Blockly.unprefixName(block.getFieldValue("VAR"));
   var prefix = prefixPair[0];
@@ -1236,7 +1215,7 @@ Blockly.LexicalVariable.eventParamMutationToDom = function (block) {
     }
     return null; // If get to this point, there is no mutation
   }
-}
+}*/
 
 /**
  * [lyn, 07/03/14] Created
@@ -1245,7 +1224,7 @@ Blockly.LexicalVariable.eventParamMutationToDom = function (block) {
  * For getters and setters of event parameters, marks them specially
  * with a eventparam property to support i8n.
  * This is used only by Blockly.LexicalVariable.eventParameterDict
- */
+ *//*
 Blockly.LexicalVariable.eventParamDomToMutation = function (block, xmlElement) {
   var children = goog.dom.getChildren(xmlElement);
   if (children.length == 1) { // Should be exactly one eventParam child
@@ -1255,14 +1234,14 @@ Blockly.LexicalVariable.eventParamDomToMutation = function (block, xmlElement) {
       block.eventparam = untranslatedEventName; // special property viewed by Blockly.LexicalVariable.eventParameterDict
     }
   }
-}
+}*/
 
 /**
  * [lyn, 07/03/14] Created
  * @param block: a block
  * @returns a "dictionary" object that maps all default event parameter names
  *   used in the block to their translated names.
- */
+ *//*
 Blockly.LexicalVariable.eventParameterDict = function (block) {
   var dict = {};
   var descendants = block.getDescendants();
@@ -1274,5 +1253,5 @@ Blockly.LexicalVariable.eventParameterDict = function (block) {
     }
   }
   return dict;
-}
+}*/
 
