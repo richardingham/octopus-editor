@@ -19,10 +19,8 @@ goog.require('Blockly.FieldFlydown');
  * @extends {Blockly.Field}
  * @constructor
  */
-Blockly.FieldGlobalFlydown = function(name, displayLocation) {
-  Blockly.FieldGlobalFlydown.superClass_.constructor.call(this, name, true, displayLocation,
-      // rename all references to this global variable
-      Blockly.LexicalVariable.renameGlobal)
+Blockly.FieldGlobalFlydown = function(name, displayLocation, changeHandler) {
+  Blockly.FieldGlobalFlydown.superClass_.constructor.call(this, name, true, displayLocation, changeHandler);
 };
 goog.inherits(Blockly.FieldGlobalFlydown, Blockly.FieldFlydown);
 
@@ -35,15 +33,6 @@ Blockly.FieldGlobalFlydown.prototype.flyoutCSSClassName = 'blocklyFieldParameter
  * Returns a list of two XML elements: a getter block for name and a setter block for this parameter field.
  *  @return {!Array.<string>} List of two XML elements.
  **/
-/* Blockly.FieldGlobalFlydown.prototype.createBlocks_ = function() {
-  var name = Blockly.globalNamePrefix + " " + this.getText(); // global name for this parameter field.
-  var getterBlock = new Blockly.Block.obtain(Blockly.mainWorkspace, 'lexical_variable_get');
-  getterBlock.setFieldValue(name, 'VAR');
-  var setterBlock = new Blockly.Block.obtain(Blockly.mainWorkspace, 'lexical_variable_set');
-  setterBlock.setFieldValue(name, 'VAR');
-  return [getterBlock, setterBlock];
-}
-*/
 Blockly.FieldGlobalFlydown.prototype.flydownBlocksXML_ = function() {
   var name = Blockly.globalNamePrefix + " " + this.getText(); // global name for this parameter field.
   var getterSetterXML =

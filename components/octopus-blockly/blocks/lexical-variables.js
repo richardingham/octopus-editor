@@ -9,8 +9,12 @@ Blockly.Blocks['global_declaration'] = {
     this.setColour(330);
     this.appendValueInput('VALUE')
         .appendField('initialise global') //Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_TITLE_INIT)
-        .appendField(new Blockly.FieldGlobalFlydown('name', //Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_NAME,
-                                                    Blockly.FieldFlydown.DISPLAY_BELOW), 'NAME')
+        .appendField(
+          new Blockly.FieldGlobalFlydown( 
+            'name', //Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_NAME,
+            Blockly.FieldFlydown.DISPLAY_BELOW,
+            this.rename_.bind(this)
+          ), 'NAME')
         .appendField('to'); //Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_TO);
     this.setTooltip('Declare a global variable'); //Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_TOOLTIP);
   },
@@ -22,6 +26,18 @@ Blockly.Blocks['global_declaration'] = {
       this.setFieldValue(newName, 'NAME');
     }
   },
+  rename_: function (newName) {
+    var oldName = this.getFieldValue('NAME');
+	if (oldName === newName && this.variable_) {
+	  return newName;
+	}
+	if (!this.variable_) {
+	  this.variable_ = Blockly.GlobalScope.addVariable(newName);
+	} else {
+	  this.variable_.setName(newName);
+	} 
+	return this.variable_.getVarName();
+  }
   //typeblock: [{ translatedName: Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_TITLE_INIT }]
 };
 
@@ -43,12 +59,12 @@ Blockly.Blocks['lexical_variable_get'] = {
     this.setTooltip(''); //Blockly.Msg.LANG_VARIABLES_GET_TOOLTIP);
     //this.errors = [{name:"checkIsInDefinition"},{name:"checkDropDownContainsValidValue",dropDowns:["VAR"]}];
   },
-  mutationToDom: function() { // Handle getters for event parameters specially (to support i8n)
-    return Blockly.LexicalVariable.eventParamMutationToDom(this);
-  },
-  domToMutation: function(xmlElement) { // Handler getters for event parameters specially (to support i8n)
-    Blockly.LexicalVariable.eventParamDomToMutation(this, xmlElement);
-  },
+  //mutationToDom: function() { // Handle getters for event parameters specially (to support i8n)
+  //  return Blockly.LexicalVariable.eventParamMutationToDom(this);
+  //},
+  //domToMutation: function(xmlElement) { // Handler getters for event parameters specially (to support i8n)
+  //  Blockly.LexicalVariable.eventParamDomToMutation(this, xmlElement);
+  //},
   getVars: function() {
     return [this.getFieldValue('VAR')];
   },
@@ -112,12 +128,12 @@ Blockly.Blocks['lexical_variable_set'] = {
     this.setTooltip(''); //Blockly.Msg.LANG_VARIABLES_SET_TOOLTIP);
     //this.errors = [{name:"checkIsInDefinition"},{name:"checkDropDownContainsValidValue",dropDowns:["VAR"]}];
   },
-  mutationToDom: function() { // Handle setters for event parameters specially (to support i8n)
-    return Blockly.LexicalVariable.eventParamMutationToDom(this);
-  },
-  domToMutation: function(xmlElement) { // Handler setters for event parameters specially (to support i8n)
-    Blockly.LexicalVariable.eventParamDomToMutation(this, xmlElement);
-  },
+  //mutationToDom: function() { // Handle setters for event parameters specially (to support i8n)
+  //  return Blockly.LexicalVariable.eventParamMutationToDom(this);
+  //},
+  //domToMutation: function(xmlElement) { // Handler setters for event parameters specially (to support i8n)
+ //   Blockly.LexicalVariable.eventParamDomToMutation(this, xmlElement);
+  //},
   getVars: function() {
     return [this.getFieldValue('VAR')];
   },

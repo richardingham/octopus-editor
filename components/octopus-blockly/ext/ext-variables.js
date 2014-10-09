@@ -38,6 +38,7 @@ Blockly.Variable = function (name, scope) {
 	this.type_ = "all";
 	this.attributes_ = [];
 	this.blocks_ = [];
+	this.readonly = false;
 
 	// local.block23::myvar
 	// local.block23::myvar::subobj.subsubobj
@@ -93,6 +94,14 @@ Blockly.Variable.prototype.getVarName = function () {
 
 Blockly.Variable.prototype.getAttribute = function () {
 	return this.split_[2];
+};
+
+Blockly.Variable.prototype.getIdentifier = function () {
+	var split_ns = this.split_[0].split(".");
+	if (this.scope_.global_) {
+		return split_ns[1] + "_" + this.varName_;
+	}
+	return this.varName_;
 };
 
 // This function should be overridden by anything that
@@ -205,6 +214,9 @@ Blockly.VariableScope.prototype.isAvailableName = function (name) {
  * @return {!Array.<Blockly.Variable>} Array of variables.
  */
 Blockly.VariableScope.prototype.getNamesInScope = function () {
+	if (this.global_) {
+		return Blockly.GlobalScope.getVariableNames();
+	}
 	return this.getVariablesInScope().concat(
 		this.getVariablesInChildScopes()
 	).map(function (v) { return v.getVarName() });
@@ -229,7 +241,7 @@ Blockly.VariableScope.prototype.flattenScopedVariableArray_ = function (array) {
     while (++valIndex < valLength) {
       val = value[valIndex];
       name = val.getVarName();
-      if (seen.indexOf(name) >= 0) {
+      if (seen.indexOf(name) === -1) {
         result[resIndex] = val;
         seen[resIndex++] = name;
       } else {
@@ -247,6 +259,10 @@ Blockly.VariableScope.prototype.flattenScopedVariableArray_ = function (array) {
  * @return {!Array.<Blockly.Variable>} The variables.
  */
 Blockly.VariableScope.prototype.getVariablesInScope = function () {
+  if (this.global_) {
+    return [];
+  }
+
   var scope, scopes = [],
       variables,
       block = this.block_;
@@ -259,9 +275,10 @@ Blockly.VariableScope.prototype.getVariablesInScope = function () {
     block = block.getSurroundParent();
   } while (block);
 
-  if (Blockly.GlobalScope) {
-    scopes.push(Blockly.GlobalScope.getVariables());
-  }
+  // Global vars are in a separate namespace.
+  //if (Blockly.GlobalScope) {
+  //  scopes.push(Blockly.GlobalScope.getVariables());
+  //}
 
   variables = this.flattenScopedVariableArray_(scopes);
 
@@ -409,5 +426,5 @@ Blockly.VariableScope.prototype.validName = function (name) {
   }
 };
 
-Blockly.GlobalScope = Blockly.VariableScope("global", "global");
+Blockly.GlobalScope = new Blockly.VariableScope("global", "global");
 

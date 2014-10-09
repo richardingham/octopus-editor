@@ -46,7 +46,7 @@ Blockly.Block.prototype.getVariableScope = function(thisBlockOnly) {
   }
 
   var parent = this.getSurroundParent();
-  return this.variableScope_ || (parent && parent.getVariableScope()) || null;
+  return this.variableScope_ || (parent && parent.getVariableScope()) || Blockly.GlobalScope;
 };
 
 Blockly.Block.prototype.fill_ = Blockly.Block.prototype.fill;

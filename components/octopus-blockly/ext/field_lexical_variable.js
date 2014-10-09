@@ -101,17 +101,27 @@ Blockly.FieldLexicalVariable.prototype.getValue = function() {
  * Set the variable name.
  * @param {string} text New text.
  */
-Blockly.FieldLexicalVariable.prototype.setValue = function(text) {
-  this.value_ = text;
-  if (text) {
-    if (Array.isArray(text)) {
-	  this.setText(text.join("."));
-    } else {
-      this.setText(text);
-	}
-    // Blockly.WarningHandler.checkErrors.call(this.sourceBlock_);
+Blockly.FieldLexicalVariable.prototype.setValue = function (variable) {
+  if (this.block_ && this.block_.isInFlyout) {
+    this.setText(variable);
+	return;
   }
+  if (typeof variable === "string" && this.block_) {
+    var scope = this.block_.getVariableScope();
+    variable = scope.getVariable(variable);
+  }
+  if (!variable || typeof variable === "string") {
+    this.value_ = variable || "";
+    this.block_.variable_ = null;
+    this.setText(variable || "");
+    return;
+  }
+  this.value_ = variable.getName();
+  this.block_.variable_ = variable;
+  this.setText(variable.getVarName());
+  // Blockly.WarningHandler.checkErrors.call(this.sourceBlock_);
 };
+
 
 /**
  * Get the block holding this drop-down variable chooser
@@ -202,6 +212,27 @@ Blockly.FieldLexicalVariable.getNamesInScope = function (block) {
   // [lyn, 11/24/12] Sort and remove duplicates from namespaces
   globalNames = Blockly.LexicalVariable.sortAndRemoveDuplicates(globalNames);
   var allLexicalNames = Blockly.FieldLexicalVariable.getLexicalNamesInScope(block);
+  // Return a list of all names in scope: global names followed by lexical ones.
+  return globalNames.map( Blockly.possiblyPrefixMenuName ).concat(allLexicalNames.map(function (x) { return [x, x] }));
+}
+
+// [lyn, 11/15/13] Refactored to work on any block
+Blockly.FieldLexicalVariable.getNamesInScope = function (block) {
+
+  var variables = Blockly.GlobalScope.getVariables();
+
+  //var globalNames = Blockly.FieldLexicalVariable.getGlobalNames(null, this.forSetter_); // from global variable declarations
+  //globalNames = Blockly.LexicalVariable.sortAndRemoveDuplicates(globalNames);
+  
+  if (block) {
+	var allLexicalNames = block.getVariableScope().getVariablesInScope();
+	if (allLexicalNames.length > 0) {
+	  variables = variables.concat("separator", allLexicalNames);
+	}
+  }
+  
+  return variables;
+  
   // Return a list of all names in scope: global names followed by lexical ones.
   return globalNames.map( Blockly.possiblyPrefixMenuName ).concat(allLexicalNames.map(function (x) { return [x, x] }));
 }
@@ -331,6 +362,8 @@ Blockly.FieldLexicalVariable.dropdownCreate = function() {
 Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
   Blockly.WidgetDiv.show(this, null);
   var thisField = this;
+  var selected = (this.block_.variable_) ? this.block_.variable_.getName() : null;
+  var forWrite = false;
   var menu = new goog.ui.Menu();
   var submenus = [];
 
@@ -405,23 +438,19 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
       option = options[x];
 	  
 	  // Separators are allowed.
-	  if (option == "separator") {
+	  if (option === "separator") {
 	    menuItem = new goog.ui.MenuSeparator();
 	  } 
 	  
-	  // Everything else will be an array.
-	  else if (option.length && option.length > 1) {
-        var text = option[0];  // Human-readable text.
-        var value = option[1]; // Language-neutral value.
-	    var disabled = false;
+	  // Everything else will be a Blockly.Variable.
+	  else if (option.getName) {
+        var text = option.getVarName();  // Human-readable text.
+        var value = option; // Language-neutral value.
+	    var disabled = forWrite && option.readonly;
+	    var attributes = option.getAttributes();
 
-		// If this option should be disabled, true is passed in as the third value.
-	    if (option.length >= 3) {
-	  	  disabled = option[2];
-	    }
-
-		// The optional fourth value gives the list of submenu values.
-	    if (option.length === 4 && option[3].length) {
+		// If a submenu is required
+	    if (attributes.length) {
 	  	  menuItem = new goog.ui.SubMenu(text);
 		  var subChecked = false;
 
@@ -429,7 +458,7 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
 		  // to allow the parent to be selected.
 		  if (!disabled) {
 		    var subMenuItem = new goog.ui.MenuItem(text);
-			var same = compare(value, thisField.value_);
+			var same = (value === selected);
 		    subMenuItem.setValue(value);
             subMenuItem.setCheckable(true);
             subMenuItem.setChecked(same);
@@ -438,7 +467,7 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
 	        menuItem.addItem(new goog.ui.MenuSeparator(), true);
 		  }
 
-		  subChecked |= build(menuItem, option[3], true);
+		  subChecked |= build(menuItem, attributes, true);
 
 		  // If the parent item is "disabled" it should still be
 		  // added to the menu to allow child items to be selected.
@@ -459,7 +488,7 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
 		
 		// Just a regular menu item.
 		else {
-	      var same = compare(value, thisField.value_);
+	      var same = (value === selected);
           menuItem = new goog.ui.MenuItem(text); 
           menuItem.setCheckable(true);
           menuItem.setChecked(same);
