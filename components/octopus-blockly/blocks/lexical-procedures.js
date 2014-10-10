@@ -624,6 +624,17 @@ Blockly.Blocks['procedures_mutatorarg'] = {
 	//console.log("Var " + this.variable_.getVarName() + " removed");
     delete this.variable_;
   },
+  setParent: function (newParent) {
+    var paramName = this.getFieldValue('NAME'); 
+	var attached = (!this.parentBlock_ && newParent);
+
+	Blockly.Block.prototype.setParent.call(this, newParent);
+	if (paramName) { // paramName is null when deleting from stack
+      if (attached) { 
+		this.created();
+      }
+	}
+  },
   onchange: function() {
     var paramName = this.getFieldValue('NAME'); 
     var oldContainer = this.cachedContainerBlock_;
