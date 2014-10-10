@@ -32,16 +32,17 @@ goog.provide('Blockly.GlobalScope');
 goog.require('Blockly.Toolbox');
 goog.require('Blockly.Workspace');
 
-Blockly.Variable = function (name, scope) {
+Blockly.Variable = function (name, scope, subScope) {
 	this.name_ = "";
 	this.scope_ = scope;
+	this.subScope_ = subScope;
 	this.type_ = "all";
 	this.attributes_ = [];
 	this.blocks_ = [];
 	this.readonly = false;
 
-	// local.block23::myvar
-	// local.block23::myvar::subobj.subsubobj
+	// local.subscope::myvar
+	// local.subscope::myvar::subobj.subsubobj
 	this.setName(name);
 };
 
@@ -57,7 +58,7 @@ Blockly.Variable.prototype.setName = function (name) {
 	// to set a name with attributes without also specifying the namespace.
 	if (name.indexOf('::') < 0) {
 		varName = name;
-		name = this.scope_.getName() + '::' + name;
+		name = this.scope_.getName() + (this.subScope_ ? "." : "") + this.subScope_ + '::' + name;
 	} else {
 		varName = name.split('::')[1];
 	}
@@ -120,7 +121,11 @@ Blockly.Variable.prototype.getNamespacedName = function () {
 };
 
 Blockly.Variable.prototype.getDisplay = function () {
-	return this.display_;  /// FORMAT
+	var split_ns = this.split_[0].split(".");
+	if (this.scope_.global_) {
+		return split_ns[1] + " " + (this.display_ ? this.display_ : this.varName_);
+	}
+	return this.varName_;
 };
 
 Blockly.Variable.prototype.getScope = function () {
@@ -128,11 +133,11 @@ Blockly.Variable.prototype.getScope = function () {
 };
 
 
-Blockly.VariableScope = function (block, namespace) {
+Blockly.VariableScope = function (block) {
 	if (block === "global") {
 		this.global_ = true;
 		this.block_ = null;
-		this.namespace_ = 'global.' + namespace;
+		this.namespace_ = 'global';
 	} else {
 		this.global_ = false;
 		this.block_ = block;
@@ -151,11 +156,11 @@ Blockly.VariableScope.prototype.getName = function () {
  * @param {string} name  Name for variable (optional). If no name is provided, one is generated.
  * @return {Blockly.Variable} New variable.
  */
-Blockly.VariableScope.prototype.addVariable = function (name) {
+Blockly.VariableScope.prototype.addVariable = function (name, subScope) {
 	if (typeof name === "undefined" || name === "") {
 		name = this.generateUniqueName();
 	}
-	var variable = new Blockly.Variable(name, this);
+	var variable = new Blockly.Variable(name, this, subScope);
 	this.variables_.push(variable);
 	return variable;
 };
@@ -469,3 +474,9 @@ Blockly.VariableScope.prototype.validName = function (name, currentName) {
 
 Blockly.GlobalScope = new Blockly.VariableScope("global", "global");
 
+Blockly.GlobalScope.addVariable = function (name, type) {
+	if (typeof type !== "string" || type === "") {
+		type = "global";
+	}
+	return Blockly.VariableScope.prototype.addVariable.call(this, name, type);
+};

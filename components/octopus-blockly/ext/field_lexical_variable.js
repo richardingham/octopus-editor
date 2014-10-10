@@ -122,7 +122,7 @@ Blockly.FieldLexicalVariable.prototype.setValue = function (variable) {
   }
   this.value_ = variable.getName();
   //this.block_.variable_ = variable;
-  this.setText(variable.getVarName());
+  this.setText(variable.getDisplay());
   // Blockly.WarningHandler.checkErrors.call(this.sourceBlock_);
 };
 
@@ -434,7 +434,7 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
 	  
 	  // Everything else will be a Blockly.Variable.
 	  else if (option.getName) {
-        var text = option.getVarName();  // Human-readable text.
+        var text = option.getDisplay();  // Human-readable text.
         var value = option; // Language-neutral value.
 	    var disabled = forWrite && option.readonly;
 	    var attributes = option.getAttributes();
