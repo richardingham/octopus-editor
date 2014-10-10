@@ -67,7 +67,7 @@ Blockly.Variable.prototype.setName = function (name) {
 	}
 
 	if (!this.scope_.isAvailableName(varName)) {
-		varName = this.scope_.validName(varName);
+		varName = this.scope_.validName(varName, this.varName_);
 		name = this.scope_.getName() + '::' + varName;
 	}
 
@@ -402,10 +402,10 @@ Blockly.VariableScope.prototype.generateUniqueName = function () {
  * Possibly add a digit to name to distinguish it from names in list. 
  * Used to guarantee that two names aren't the same in situations that prohibit this. 
  * @param {string} name Proposed name.
- * @param {string list} nameList List of names with which name can't conflict
+ * @param {string} currentName If the variable is being renamed, current name.
  * @return {string} Non-colliding name.
  */
-Blockly.VariableScope.prototype.validName = function (name) {
+Blockly.VariableScope.prototype.validName = function (name, currentName) {
   // First find the nonempty digit suffixes of all names in nameList that have the same prefix as name
   // e.g. for name "foo3" and nameList = ["foo", "bar4", "foo17", "bar" "foo5"]
   // suffixes is ["17", "5"]
@@ -415,8 +415,11 @@ Blockly.VariableScope.prototype.validName = function (name) {
   var nameSuffix = namePrefixSuffix[1];
   var emptySuffixUsed = false; // Tracks whether "" is a suffix. 
   var isConflict = false; // Tracks whether nameSuffix is used 
-  var suffixes = [];   
+  var suffixes = [];
   for (var i = 0; i < nameList.length; i++) {
+    if (nameList[i] === currentName) {
+      continue;
+    }
     var prefixSuffix = Blockly.FieldLexicalVariable.prefixSuffix(nameList[i]);
     var prefix = prefixSuffix[0];
     var suffix = prefixSuffix[1];
