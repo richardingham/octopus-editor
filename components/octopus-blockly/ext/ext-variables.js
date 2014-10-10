@@ -334,7 +334,7 @@ Blockly.VariableScope.prototype.getVariablesInChildScopes = function () {
   for (var i = 0; i < blocks.length; i++) {
     block = blocks[i];
 	if (block.childBlocks_.length) {
-	  Array.push.apply(blocks, block.childBlocks_);
+	  Array.prototype.push.apply(blocks, block.childBlocks_);
 	}
 	scope = block.getVariableScope(true);
     if (scope) {
