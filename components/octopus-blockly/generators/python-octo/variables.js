@@ -69,9 +69,6 @@ Blockly.PythonOcto.getVariableName_ = function (variable) {
 Blockly.PythonOcto['lexical_variable_get'] = function(block) {
   // Variable getter.
   var name = Blockly.PythonOcto.getVariableName_(block.getVariable());
-  //var name = Blockly.PythonOcto.getVariableName_(block.getFieldValue('VAR'));
-  //var name = Blockly.PythonOcto.variableDB_.getName(block.variable_.getIdentifier(),
-  //    Blockly.Variables.NAME_TYPE);
   return [name, Blockly.PythonOcto.ORDER_ATOMIC];
 };
 
@@ -80,9 +77,6 @@ Blockly.PythonOcto['lexical_variable_set'] = function(block) {
   var argument0 = Blockly.PythonOcto.valueToCode(block, 'VALUE',
       Blockly.PythonOcto.ORDER_NONE) || '0';
   var name = Blockly.PythonOcto.getVariableName_(block.getVariable());
-  //var name = Blockly.PythonOcto.getVariableName_(block.getFieldValue('VAR'));
- // var name = Blockly.PythonOcto.variableDB_.getName(block.variable_.getIdentifier(),
-  //    Blockly.Variables.NAME_TYPE);
   return 'set(' + name + ', ' + argument0 + ')';
 };
 
@@ -90,7 +84,5 @@ Blockly.PythonOcto['global_declaration'] = function(block) {
   var argument0 = Blockly.PythonOcto.valueToCode(block, 'VALUE',
       Blockly.PythonOcto.ORDER_NONE) || '0';
   var name = Blockly.PythonOcto.getVariableName_(block.variable_);
-  //var name = Blockly.PythonOcto.variableDB_.getName(block.variable_.getIdentifier(),
-  //    Blockly.Variables.NAME_TYPE);
   return name + ' = variable(' + argument0 + ')';
 };

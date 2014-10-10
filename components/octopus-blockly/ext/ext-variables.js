@@ -24,6 +24,7 @@
 
 goog.provide('Blockly.Variable');
 goog.provide('Blockly.VariableScope');
+goog.provide('Blockly.VariableSubScope');
 goog.provide('Blockly.GlobalScope');
 //goog.provide('Blockly.Variables');
 
@@ -34,11 +35,10 @@ goog.require('Blockly.Workspace');
 
 Blockly.Variable = function (name, scope, subScope) {
 	this.name_ = "";
+	this.display_ = null;
 	this.scope_ = scope;
 	this.subScope_ = subScope;
 	this.type_ = "all";
-	this.attributes_ = [];
-	this.blocks_ = [];
 	this.readonly = false;
 
 	// local.subscope::myvar
@@ -51,16 +51,25 @@ Blockly.Variable.prototype.getName = function () {
 };
 
 Blockly.Variable.prototype.setName = function (name) {
-	var varName;
+	var varName, attribute, split;
 	name = name.toLowerCase();     // TODO: Allow upper case in names, but do lower case comparisons.
+	// TODO: make sure there are no "::" in name!!
 
 	// Check that there is a namespace. This assumes that no-one will try
 	// to set a name with attributes without also specifying the namespace.
 	if (name.indexOf('::') < 0) {
 		varName = name;
-		name = this.scope_.getName() + (this.subScope_ ? "." : "") + this.subScope_ + '::' + name;
+		split = [
+			this.scope_.getName() + (this.subScope_ ? "." : "") + this.subScope_,
+			name
+		]
+		name =  split.join('::');
 	} else {
-		varName = name.split('::')[1];
+		split = name.split('::');
+		varName = split[1];
+		if (split.length === 3) {
+			attribute = split[2];
+		}
 	}
 
 	if (varName === "") {
@@ -74,13 +83,16 @@ Blockly.Variable.prototype.setName = function (name) {
 	if (!this.scope_.isAvailableName(varName)) {
 		varName = this.scope_.validName(varName, this.varName_);
 		name = this.scope_.getName() + '::' + varName;
+		if (attribute) {
+			name += "::" + attribute;
+		}
+		split[1] = varName;
 	}
-
-	var split = name.split('::');
-	split.length = 3;
 
 	this.name_ = name;
 	this.varName_ = varName;
+
+	split.length = 3;
 	this.split_ = split;
 	return name;
 };
@@ -101,6 +113,18 @@ Blockly.Variable.prototype.getAttribute = function () {
 	return this.split_[2];
 };
 
+Blockly.Variable.prototype.setDisplay = function (name) {
+	this.display_ = name;
+};
+
+Blockly.Variable.prototype.setReadonly = function (readonly) {
+	this.readonly = readonly;
+};
+
+Blockly.Variable.prototype.setType = function (type) {
+	this.type_ = type;
+};
+
 Blockly.Variable.prototype.getIdentifier = function () {
 	var split_ns = this.split_[0].split(".");
 	if (this.scope_.global_) {
@@ -109,11 +133,20 @@ Blockly.Variable.prototype.getIdentifier = function () {
 	return this.varName_;
 };
 
+Blockly.Variable.prototype.addAttribute = function (name) {
+	if (!this.attributeScope_) {
+		this.attributeScope_ = new Blockly.VariableSubScope(this.scope_);
+	}
+	name = this.name_ + (this.split_[2] ? '.' : '::') + name;
+	var variable = this.attributeScope_.addVariable(name, this.subScope_);
+	return variable;
+};
+
 // This function should be overridden by anything that
 // has attributes. Use getAttribute() to figure out which
 // level of the var we are at????? (!!!!!!???????)
 Blockly.Variable.prototype.getAttributes = function () {
-	return [];
+	return this.attributeScope_ ? this.attributeScope_.getVariables() : [];
 };
 
 Blockly.Variable.prototype.getNamespacedName = function () {
@@ -125,7 +158,7 @@ Blockly.Variable.prototype.getDisplay = function () {
 	if (this.scope_.global_) {
 		return split_ns[1] + " " + (this.display_ ? this.display_ : this.varName_);
 	}
-	return this.varName_;
+	return (this.display_ ? this.display_ : this.varName_);
 };
 
 Blockly.Variable.prototype.getScope = function () {
@@ -471,6 +504,23 @@ Blockly.VariableScope.prototype.validName = function (name, currentName) {
     return namePrefix + smallest;
   }
 };
+
+
+Blockly.VariableSubScope = function (scope) {
+	this.superScope_ = scope.superScope_ ? scope.superScope_ : scope;
+	this.variables_ = [];
+};
+goog.inherits(Blockly.VariableSubScope, Blockly.VariableScope);
+Blockly.VariableSubScope.prototype.getName = function () {
+	return this.superScope_.getName();
+};
+Blockly.VariableSubScope.prototype.getNamesInScope = Blockly.VariableScope.prototype.getVariableNames;
+Blockly.VariableSubScope.prototype.getScopedVariable = Blockly.VariableScope.prototype.getVariable;
+Blockly.VariableSubScope.prototype.getVariablesInScope = Blockly.VariableScope.prototype.getVariables;
+Blockly.VariableSubScope.prototype.getVariablesInChildScopes = function () {
+	return [];
+};
+
 
 Blockly.GlobalScope = new Blockly.VariableScope("global", "global");
 

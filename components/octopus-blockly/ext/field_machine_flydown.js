@@ -20,10 +20,10 @@ goog.require('Blockly.LexicalVariable');
  * @extends {Blockly.Field}
  * @constructor
  */
-Blockly.FieldMachineFlydown = function(name, displayLocation) {
+Blockly.FieldMachineFlydown = function(name, displayLocation, changeHandler) {
   Blockly.FieldMachineFlydown.superClass_.constructor.call(this, name, true, displayLocation,
       // rename all references to this global variable
-      Blockly.FieldMachineFlydown.renameMachine)
+      changeHandler)
 };
 goog.inherits(Blockly.FieldMachineFlydown, Blockly.FieldFlydown);
 
@@ -47,38 +47,4 @@ Blockly.FieldMachineFlydown.prototype.flydownBlocksXML_ = function() {
         '</block>' +
       '</xml>';
   return getterSetterXML;
-};
-
-// TODO - can this be abstracted with renameGlobal?
-Blockly.FieldMachineFlydown.renameMachine = function (newName) {
-
-  // This is bound to field_textinput object 
-  var oldName = this.text_;
-
-  // Check legality of identifiers
-  newName = Blockly.LexicalVariable.makeLegalIdentifier(newName);
-
-  // this.sourceBlock_ excludes block being renamed from consideration
-  var globals = Blockly.FieldLexicalVariable.getGlobalNames(this.sourceBlock_).map(function (i) { return i[1]; }); 
-
-  // Potentially rename declaration against other occurrences
-  newName = Blockly.FieldLexicalVariable.nameNotIn(newName, globals);
-
-  if ((! (newName === oldName)) && this.sourceBlock_.rendered) {
-    // Rename getters and setters
-    if (Blockly.mainWorkspace) {
-      var blocks = Blockly.mainWorkspace.getAllBlocks(); 
-      for (var i = 0; i < blocks.length; i++) {
-        var block = blocks[i];
-        var renamingFunction = block.renameLexicalVar;
-        if (renamingFunction) {
-            renamingFunction.call(block,
-                                  Blockly.machineNamePrefix + Blockly.menuSeparator + oldName,
-                                  Blockly.machineNamePrefix + Blockly.menuSeparator + newName);
-        }
-      }
-    }
-  }
-
-  return newName;
 };

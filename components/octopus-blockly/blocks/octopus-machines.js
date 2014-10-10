@@ -28,23 +28,77 @@ goog.provide('Blockly.Blocks.machines');
 
 goog.require('Blockly.Blocks');
 
+var _R2R4_vars = [{
+	name: "power", title: "Power", type: "string"
+},{
+	name: "pressure", title: "System Pressure", type: "integer", readonly: true
+}, {
+	name: "pump1", title: "Pump A", parts: [
+		{ name: "target", title: "Target", type: "integer" },
+		{ name: "rate", title: "Flow Rate", type: "integer", readonly: true },
+		{ name: "pressure", title: "Pressure", type: "integer", readonly: true },
+		{ name: "input", title: "Input", type: "string" },
+		{ name: "airlock", title: "Airlock", type: "integer", readonly: true }
+	]
+}, {
+	name: "heater1", title: "Heater A", parts: [
+		{ name: "target", title: "Target", type: "integer" },
+		{ name: "temp", title: "Temperature", type: "integer", readonly: true },
+		{ name: "mode", title: "Mode", type: "integer", readonly: true },
+		{ name: "power", title: "Power", type: "integer", readonly: true }
+	]
+}, {
+	name: "heater2", title: "Heater B", parts: [
+		{ name: "target", title: "Target", type: "integer" },
+		{ name: "temp", title: "Temperature", type: "integer", readonly: true },
+		{ name: "mode", title: "Mode", type: "integer", readonly: true },
+		{ name: "power", title: "Power", type: "integer", readonly: true }
+	]
+}]
+
 
 Blockly.Blocks['machine_vapourtec_R2R4'] = {
   init: function() {
+	var default_name = "reactor";
+
     //this.setHelpUrl('http://www.example.com/');
     this.setColour(0);
     this.appendDummyInput()
         .appendField("Vapourtec R2+/R4 ")
-        //.appendField(new Blockly.FieldVariable('reactor'), "NAME");
-		
-        .appendField(new Blockly.FieldMachineFlydown('reactor', //Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_NAME,
-                                                    Blockly.FieldFlydown.DISPLAY_BELOW), 'NAME');
+        .appendField(new Blockly.FieldMachineFlydown(
+            default_name, //Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_NAME,
+            Blockly.FieldFlydown.DISPLAY_BELOW,
+            this.rename_.bind(this)), 
+        'NAME');
     this.appendValueInput("CONNECTION")
         .setCheck("machine-connection")
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("connection");
     this.setTooltip('');
 	this.setInputsInline(false);
+
+	if (!this.isInFlyout) {
+		var machineVar = Blockly.GlobalScope.addVariable(default_name, "machine");
+		machineVar.setType("component");
+
+		var addParts = function (variable, parts) {
+			var part;
+			for (var i = 0; i < parts.length; i++) {
+				part = parts[i];
+				var partVar = variable.addAttribute(part.name);
+				partVar.setDisplay(part.title);
+				partVar.setType(part.parts ? "component" : part.type);
+				partVar.setReadonly(part.readonly);
+
+				if (part.parts) {
+					addParts(partVar, part.parts);
+				}
+			}
+		}
+		
+		addParts(machineVar, _R2R4_vars);
+		this.variable_ = machineVar;
+	}
   },
   /**
    * Return all variables referenced by this block.
@@ -66,7 +120,16 @@ Blockly.Blocks['machine_vapourtec_R2R4'] = {
       this.setFieldValue(newName, 'NAME');
     }
   },
-  
+
+  rename_: function (newName) {
+    var oldName = this.getFieldValue('NAME');
+	if (oldName === newName && this.variable_) {
+	  return newName;
+	}
+	this.variable_.setName(newName);
+	return this.variable_.getVarName();
+  },
+
   getVariablesMenu: function(name, forSetter) {
 	return [
 	  ["Pump A", [name, "pump1"], forSetter, [
