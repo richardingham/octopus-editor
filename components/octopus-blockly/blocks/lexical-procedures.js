@@ -271,11 +271,12 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         return;
       }
 
-      newArguments[paramIndex] = newParamName;
-
       if (variable) {
         variable.setName(newParamName);
+		newParamName = variable.getVarName();
       }
+
+      newArguments[paramIndex] = newParamName;
 
       // 1. Change all callers so label reflects new name
       Blockly.Procedures.mutateCallers(procName, procWorkspace, newArguments, procDecl.paramIds_);
@@ -372,6 +373,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     return containerBlock;
   },
   compose: function(containerBlock) {
+    //console.log("Compose: Old Param IDs", this.paramIds_, "arguments: ", this.arguments_);
     var params = [];
     this.paramIds_ = [];
     var paramBlock = containerBlock.getInputTargetBlock('STACK');
@@ -381,6 +383,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       paramBlock = paramBlock.nextConnection &&
           paramBlock.nextConnection.targetBlock();
     }
+	//console.log("Compose: New Param IDs", this.paramIds_, " Params: ", params);
     // console.log("enter procedures_defnoreturn compose(); prevArguments = "
     //    + prevArguments.join(',')
     //    + "; currentAguments = "
@@ -624,6 +627,7 @@ Blockly.Blocks['procedures_mutatorarg'] = {
 	//console.log("Var " + this.variable_.getVarName() + " removed");
     delete this.variable_;
   },
+  // TODO: this could possibly all be rewritten and incorporated into the decompose() function.
   setParent: function (newParent) {
     var paramName = this.getFieldValue('NAME'); 
 	var attached = (!this.parentBlock_ && newParent);
