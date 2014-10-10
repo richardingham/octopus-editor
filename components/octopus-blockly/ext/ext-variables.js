@@ -62,6 +62,10 @@ Blockly.Variable.prototype.setName = function (name) {
 		varName = name.split('::')[1];
 	}
 
+	if (varName === "") {
+		varName = "_";
+	}
+
 	if (name === this.name_) {
 		return;
 	}
