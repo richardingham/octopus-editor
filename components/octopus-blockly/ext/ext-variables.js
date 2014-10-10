@@ -51,7 +51,7 @@ Blockly.Variable.prototype.getName = function () {
 
 Blockly.Variable.prototype.setName = function (name) {
 	var varName;
-	name = name.toLowerCase();     // TODO: CHECK FOR DUPLICATES, remove special chars, etc.
+	name = name.toLowerCase();     // TODO: Allow upper case in names, but do lower case comparisons.
 
 	// Check that there is a namespace. This assumes that no-one will try
 	// to set a name with attributes without also specifying the namespace.
