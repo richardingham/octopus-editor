@@ -434,7 +434,7 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
 	  
 	  // Everything else will be a Blockly.Variable.
 	  else if (option.getName) {
-        var text = option.getDisplay();  // Human-readable text.
+        var text = option.getMenu();  // Human-readable text.
         var value = option; // Language-neutral value.
 	    var disabled = forWrite && option.readonly;
 	    var attributes = option.getAttributes();
@@ -448,7 +448,7 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
 		  // to allow the parent to be selected.
 		  if (!disabled) {
 		    var subMenuItem = new goog.ui.MenuItem(text);
-			var same = (value === selected);
+			var same = (value.getName() === selected);
 		    subMenuItem.setValue(value);
             subMenuItem.setCheckable(true);
             subMenuItem.setChecked(same);
@@ -478,7 +478,7 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
 		
 		// Just a regular menu item.
 		else {
-	      var same = (value === selected);
+	      var same = (value.getName() === selected);
           menuItem = new goog.ui.MenuItem(text); 
           menuItem.setCheckable(true);
           menuItem.setChecked(same);

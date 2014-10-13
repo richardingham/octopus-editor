@@ -125,6 +125,10 @@ Blockly.Variable.prototype.getVarAttribute = function () {
 	return this.split_[2];
 };
 
+Blockly.Variable.prototype.setMenu = function (name) {
+	this.menu_ = name;
+};
+
 Blockly.Variable.prototype.setDisplay = function (name) {
 	this.display_ = name;
 };
@@ -160,10 +164,16 @@ Blockly.Variable.prototype.getNamespacedName = function () {
 
 Blockly.Variable.prototype.getDisplay = function () {
 	var split_ns = this.split_[0].split(".");
-	if (this.scope_.global_) {
-		return split_ns[1] + " " + (this.display_ ? this.display_ : this.varName_);
+	var name = (this.scope_.global_ ? split_ns[1] + " " : "") + this.varName_;
+	return (this.display_ ? name + this.display_ : name);
+};
+
+Blockly.Variable.prototype.getMenu = function () {
+	var split_ns = this.split_[0].split(".");
+	if (this.menu_) {
+		return this.menu_;
 	}
-	return (this.display_ ? this.display_ : this.varName_);
+	return (this.scope_.global_ ? split_ns[1] + " " : "") + this.varName_;
 };
 
 Blockly.Variable.prototype.getScope = function () {

@@ -56,6 +56,7 @@ var _R2R4_vars = [{
 	]
 }]
 
+var _ARROW_CHAR = goog.userAgent.ANDROID ? ' \u25B6 ' : ' \u25B8 ';
 
 Blockly.Blocks['machine_vapourtec_R2R4'] = {
   init: function() {
@@ -81,22 +82,24 @@ Blockly.Blocks['machine_vapourtec_R2R4'] = {
 		var machineVar = Blockly.GlobalScope.addVariable(default_name, "machine");
 		machineVar.setType("component");
 
-		var addParts = function (variable, parts) {
+		var addParts = function (variable, parts, titlePart) {
 			var part;
 			for (var i = 0; i < parts.length; i++) {
 				part = parts[i];
+				var display = titlePart + _ARROW_CHAR + part.title;
 				var partVar = variable.addAttribute(part.name);
-				partVar.setDisplay(part.title);
+				partVar.setMenu(part.title);
+				partVar.setDisplay(display);
 				partVar.setType(part.parts ? "component" : part.type);
 				partVar.setReadonly(part.readonly);
 
 				if (part.parts) {
-					addParts(partVar, part.parts);
+					addParts(partVar, part.parts, display);
 				}
 			}
 		}
 		
-		addParts(machineVar, _R2R4_vars);
+		addParts(machineVar, _R2R4_vars, "");
 		this.variable_ = machineVar;
 	}
   },
