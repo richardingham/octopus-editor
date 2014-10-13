@@ -46,6 +46,16 @@ Blockly.Variable = function (name, scope, subScope) {
 	this.setName(name);
 };
 
+Blockly.Variable.variableRenamed_ = function (oldName, newName, variable) {
+	var block, blocks = Blockly.mainWorkspace.getAllBlocks();
+	for (var i = 0, max = blocks.length; i < max; i++) {
+		block = blocks[i];
+		if (block.renameVar) {
+			block.renameVar(oldName, newName, variable);
+		}
+	}
+};
+
 Blockly.Variable.prototype.getScopeName_ = function () {
 	return this.scope_.getName() + (this.subScope_ ? "." : "") + this.subScope_;
 };
@@ -55,6 +65,7 @@ Blockly.Variable.prototype.getName = function () {
 };
 
 Blockly.Variable.prototype.setName = function (name) {
+	var oldName = this.name_;
 	var varName, attribute = this.attribute_, split;
 	name = name.toLowerCase();     // TODO: Allow upper case in names, but do lower case comparisons.
 	// TODO: make sure there are no "::" in name!!
@@ -106,6 +117,9 @@ Blockly.Variable.prototype.setName = function (name) {
 
 	split.length = 3;
 	this.split_ = split;
+
+	Blockly.Variable.variableRenamed_(oldName, name, this);
+
 	return name;
 };
 

@@ -21,11 +21,12 @@ Blockly.Blocks['global_declaration'] = {
   getVars: function() {
     return [this.getFieldValue('NAME')];
   },
-  renameVar: function(oldName, newName) {
+  // No external rename allowed??
+  /*renameVar: function(oldName, newName, variable) {
     if (Blockly.Names.equals(oldName, this.getFieldValue('NAME'))) {
-      this.setFieldValue(newName, 'NAME');
+      this.getFieldValue(newName, 'NAME');
     }
-  },
+  },*/
   rename_: function (newName) {
     var oldName = this.getFieldValue('NAME');
 	if (oldName === newName && this.variable_) {
@@ -68,6 +69,11 @@ Blockly.Blocks['lexical_variable_get'] = {
   getVariable: function () {
 	var scope = this.getVariableScope();
 	return scope && scope.getScopedVariable(this.getFieldValue('VAR'));
+  },
+  renameVar: function(oldName, newName, variable) {
+    if (Blockly.Names.equals(oldName, this.getFieldValue('VAR'))) {
+      this.getField_('VAR').setValue(variable);
+    }
   },
   getVars: function() {
     return [this.getFieldValue('VAR')];
@@ -141,6 +147,11 @@ Blockly.Blocks['lexical_variable_set'] = {
   getVariable: function () {
 	var scope = this.getVariableScope();
 	return scope && scope.getScopedVariable(this.getFieldValue('VAR'));
+  },
+  renameVar: function(oldName, newName, variable) {
+    if (Blockly.Names.equals(oldName, this.getFieldValue('VAR'))) {
+      this.getField_('VAR').setValue(variable);
+    }
   },
   getVars: function() {
     return [this.getFieldValue('VAR')];

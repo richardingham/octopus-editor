@@ -118,11 +118,12 @@ Blockly.Blocks['machine_vapourtec_R2R4'] = {
    * @param {string} newName Renamed variable.
    * @this Blockly.Block
    */
-  renameVar: function(oldName, newName) {
+   // No external rename allowed?
+  /*renameVar: function(oldName, newName) {
     if (Blockly.Names.equals(oldName, this.getFieldValue('NAME'))) {
       this.setFieldValue(newName, 'NAME');
     }
-  },
+  },*/
 
   rename_: function (newName) {
     var oldName = this.getFieldValue('NAME');
