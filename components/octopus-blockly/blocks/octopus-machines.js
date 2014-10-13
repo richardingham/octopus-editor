@@ -81,6 +81,7 @@ Blockly.Blocks['machine_vapourtec_R2R4'] = {
 	if (!this.isInFlyout) {
 		var machineVar = Blockly.GlobalScope.addVariable(default_name, "machine");
 		machineVar.setType("component");
+		partVar.setReadonly("true");
 
 		var addParts = function (variable, parts, titlePart) {
 			var part;
@@ -91,7 +92,7 @@ Blockly.Blocks['machine_vapourtec_R2R4'] = {
 				partVar.setMenu(part.title);
 				partVar.setDisplay(display);
 				partVar.setType(part.parts ? "component" : part.type);
-				partVar.setReadonly(part.readonly);
+				partVar.setReadonly(part.readonly || part.parts);
 
 				if (part.parts) {
 					addParts(partVar, part.parts, display);
