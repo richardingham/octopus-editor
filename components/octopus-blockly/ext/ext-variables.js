@@ -549,53 +549,55 @@ Blockly.VariableSubScope = function (scope) {
 	this.variables_ = [];
 };
 goog.inherits(Blockly.VariableSubScope, Blockly.VariableScope);
-Blockly.VariableSubScope.prototype.isGlobal = function () {
-	return this.superScope_.global_;
-};
-Blockly.VariableSubScope.prototype.getName = function () {
-	return this.superScope_.getName();
-};
-Blockly.VariableSubScope.prototype.getVariable = function (attributeName) {
-	// Hopefully this can be cleaned up a bit...
-	if (typeof attributeName === "string") {
-		attributeName = attributeName.split('.');
-	}
-	var firstName = attributeName.shift();
-	var variable, variables = this.variables_;
-	if (attributeName.length) {
-		attributeName[0] = firstName + "." + attributeName[0];
-	}
-	for (var i = 0; i < variables.length; i++) {
-		variable = variables[i];
-		if (variable.attribute_ === firstName) {
-			if (attributeName.length) {
-				if (variable.attributeScope_) {
-					return variable.attributeScope_.getVariable(attributeName);
+goog.mixin(Blockly.VariableSubScope.prototype, {
+	isGlobal: function () {
+		return this.superScope_.global_;
+	},
+	getName: function () {
+		return this.superScope_.getName();
+	},
+	getVariable: function (attributeName) {
+		// Hopefully this can be cleaned up a bit...
+		if (typeof attributeName === "string") {
+			attributeName = attributeName.split('.');
+		}
+		var firstName = attributeName.shift();
+		var variable, variables = this.variables_;
+		if (attributeName.length) {
+			attributeName[0] = firstName + "." + attributeName[0];
+		}
+		for (var i = 0; i < variables.length; i++) {
+			variable = variables[i];
+			if (variable.attribute_ === firstName) {
+				if (attributeName.length) {
+					if (variable.attributeScope_) {
+						return variable.attributeScope_.getVariable(attributeName);
+					} else {
+						return null;
+					}
 				} else {
-					return null;
+					return variable;
 				}
-			} else {
-				return variable;
 			}
 		}
+		return null;
+	},
+	getNamesInScope: Blockly.VariableScope.prototype.getVariableNames,
+	getScopedVariable: Blockly.VariableScope.prototype.getVariable,
+	getVariablesInScope: Blockly.VariableScope.prototype.getVariables,
+	getVariablesInChildScopes: function () {
+		return [];
+	},
+	isAvailableName: function (name, attribute) {
+		return (this.getNamesInScope().indexOf(attribute) === -1);
+	},
+	setTopName: function (name) {
+		var v = this.variables_;
+		for (var i = 0; i < v.length; i++) {
+			v[i].setName(name);
+		}
 	}
-	return null;
-};
-Blockly.VariableSubScope.prototype.getNamesInScope = Blockly.VariableScope.prototype.getVariableNames;
-Blockly.VariableSubScope.prototype.getScopedVariable = Blockly.VariableScope.prototype.getVariable;
-Blockly.VariableSubScope.prototype.getVariablesInScope = Blockly.VariableScope.prototype.getVariables;
-Blockly.VariableSubScope.prototype.getVariablesInChildScopes = function () {
-	return [];
-};
-Blockly.VariableScope.prototype.isAvailableName = function (name, attribute) {
-	return (this.getNamesInScope().indexOf(attribute) === -1);
-};
-Blockly.VariableScope.prototype.setTopName = function (name) {
-	var v = this.variables_;
-	for (var i = 0; i < v.length; i++) {
-		v[i].setName(name);
-	}
-};
+});
 
 Blockly.GlobalScope = new Blockly.VariableScope("global", "global");
 
