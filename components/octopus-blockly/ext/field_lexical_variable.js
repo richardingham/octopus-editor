@@ -165,6 +165,7 @@ Blockly.FieldLexicalVariable.prototype.setCachedParent = function(parent) {
 // [lyn, 11/18/12] 
 // * Removed from prototype and stripped off "global" prefix (add it elsewhere)
 // * Add optional excluded block argument as in Neil's code to avoid global declaration being created
+/*
 Blockly.FieldLexicalVariable.getGlobalNames = function (optExcludedBlock, forSetter) {
   var globals = [];
   if (Blockly.mainWorkspace) {
@@ -180,7 +181,7 @@ Blockly.FieldLexicalVariable.getGlobalNames = function (optExcludedBlock, forSet
     }
   }
   return globals;
-};
+};*/
 
 /**
  * @this A FieldLexicalVariable instance
@@ -201,6 +202,7 @@ Blockly.FieldLexicalVariable.getGlobalNames = function (optExcludedBlock, forSet
 // * If Blockly.showPrefixToUser is false, non-global names are not prefixed. 
 // * If Blockly.showPrefixToUser is true, non-global names are prefixed with labels
 //   specified in blocklyeditor.js
+
 Blockly.FieldLexicalVariable.prototype.getNamesInScope = function () {
   return Blockly.FieldLexicalVariable.getNamesInScope.call(this, this.block_);
 }
@@ -223,7 +225,7 @@ Blockly.FieldLexicalVariable.getNamesInScope = function (block) {
 	  variables = variables.concat(allLexicalNames);
 	}
   }
-  
+
   return variables;
 }
 
@@ -232,7 +234,7 @@ Blockly.FieldLexicalVariable.getNamesInScope = function (block) {
  * @returns {list} A list of all lexical names (in sorted order) in scope at the point of the given block
  *   If Blockly.usePrefixInYail is true, returns names prefixed with labels like "param", "local", "index";
  *   otherwise returns unprefixed names.
- */
+ *//*
 // [lyn, 11/15/13] Factored this out from getNamesInScope to work on any block
 Blockly.FieldLexicalVariable.getLexicalNamesInScope = function (block) {
   var procedureParamNames = []; // from procedure/function declarations
@@ -322,7 +324,7 @@ Blockly.FieldLexicalVariable.getLexicalNamesInScope = function (block) {
     allLexicalNames = Blockly.LexicalVariable.sortAndRemoveDuplicates(allLexicalNames);
   }
   return allLexicalNames;
-}
+}*/
 
 /**
  * Return a sorted list of variable names for variable dropdown menus.
@@ -570,7 +572,7 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
  * @param {string} name Proposed name.
  * @param {string list} nameList List of names with which name can't conflict
  * @return {string} Non-colliding name.
- */
+ *//*
 Blockly.FieldLexicalVariable.nameNotIn = function(name, nameList) {
   // First find the nonempty digit suffixes of all names in nameList that have the same prefix as name
   // e.g. for name "foo3" and nameList = ["foo", "bar4", "foo17", "bar" "foo5"]
@@ -623,7 +625,7 @@ Blockly.FieldLexicalVariable.nameNotIn = function(name, nameList) {
     // Only get here if exit loop
     return namePrefix + smallest;
   }
-};
+};*/
 
 /**
  * Split name into digit suffix and prefix before it. 
