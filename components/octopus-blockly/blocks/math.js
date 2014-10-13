@@ -280,15 +280,25 @@ Blockly.Blocks['math_change'] = {
   getVars: function() {
     return [this.getFieldValue('VAR')];
   },
+  getVariable: function () {
+	var scope = this.getVariableScope();
+	return scope && scope.getScopedVariable(this.getFieldValue('VAR'));
+  },
   /**
    * Notification that a variable is renaming.
    * If the name matches one of this block's variables, rename it.
    * @param {string} oldName Previous name of variable.
    * @param {string} newName Renamed variable.
+   * @param {Blockly.Variable} variable The variable in question.
    * @this Blockly.Block
    */
-  renameLexicalVar: Blockly.Blocks.lexical_variable_get.renameLexicalVar,
-  renameFree: Blockly.Blocks.lexical_variable_get.renameFree
+  renameVar: function(oldName, newName, variable) {
+    if (Blockly.Names.equals(oldName, this.getFieldValue('VAR'))) {
+      this.getField_('VAR').setValue(variable);
+    }
+  },
+  /*renameLexicalVar: Blockly.Blocks.lexical_variable_get.renameLexicalVar,
+  renameFree: Blockly.Blocks.lexical_variable_get.renameFree*/
 };
 
 Blockly.Blocks['math_round'] = {

@@ -202,8 +202,8 @@ Blockly.PythonOcto['math_number_property'] = function(block) {
 Blockly.PythonOcto['math_change'] = function(block) {
   // Add to a variable in place.
   var increment = block.getFieldValue('MODE') === 'INCREMENT';
-  var varName = Blockly.PythonOcto.getVariableName_(block.getFieldValue('VAR'));
-  return (increment ? 'in' : 'de') + 'crement(' + varName + ')';
+  var name = Blockly.PythonOcto.getVariableName_(block.getVariable());
+  return (increment ? 'in' : 'de') + 'crement(' + name + ')';
 };
 
 // Rounding functions have a single operand.
