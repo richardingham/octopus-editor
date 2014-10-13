@@ -101,6 +101,7 @@ Blockly.Blocks['machine_vapourtec_R2R4'] = {
 		
 		addParts(machineVar, _R2R4_vars, "");
 		this.variable_ = machineVar;
+		this.getField_('NAME').setValue(machineVar.getVarName());
 	}
   },
   /**

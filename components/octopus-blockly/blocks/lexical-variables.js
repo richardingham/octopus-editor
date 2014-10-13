@@ -17,6 +17,11 @@ Blockly.Blocks['global_declaration'] = {
           ), 'NAME')
         .appendField('to'); //Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_TO);
     this.setTooltip('Declare a global variable'); //Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_TOOLTIP);
+
+	if (!this.isInFlyout) {
+		this.rename_('name');
+		this.getField_('NAME').setValue(this.variable_.getVarName());
+	}
   },
   getVars: function() {
     return [this.getFieldValue('NAME')];
