@@ -352,7 +352,7 @@ Blockly.FieldLexicalVariable.dropdownCreate = function() {
 Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
   Blockly.WidgetDiv.show(this, null);
   var thisField = this;
-  var selected = (this.block_.variable_) ? this.block_.variable_.getName() : null;
+  var selected = this.value_;
   var forWrite = false;
   var menu = new goog.ui.Menu();
   var submenus = [];

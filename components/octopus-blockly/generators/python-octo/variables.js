@@ -35,35 +35,15 @@ Blockly.PythonOcto.getVariableName_ = function (variable) {
     return "_";
   }
 
-  return Blockly.PythonOcto.variableDB_.getName(variable.getIdentifier(), Blockly.Variables.NAME_TYPE);
-  
-  var tail;
+  var split_ns = variable.getNamespace().split(".");
+  var attr = variable.getVarAttribute();
+  var prefix = variable.getScope().isGlobal() ? split_ns[1] + "_" : "";
+  var name = Blockly.PythonOcto.variableDB_.getName(
+    variable.getVarName(), 
+    Blockly.Variables.NAME_TYPE
+  );
 
-  // Operate on variable name if looking at an accessor.
-  if (Array.isArray(name)) {
-	tail = name.slice(1);
-	name = name[0];
-  }
-  
-  // Remove prefix
-  var pair = Blockly.unprefixName(name);
-  var prefix = pair[0];
-  var unprefixedName = pair[1];
-  if (prefix === Blockly.globalNamePrefix) {
-    name = unprefixedName;
-  } else {
-    name = (Blockly.possiblyPrefixYailNameWith(prefix))(unprefixedName);
-  }
-  
-  // Sanitise name
-  name = Blockly.PythonOcto.variableDB_.getName(name, Blockly.Variables.NAME_TYPE);
-
-  // Append accessors
-  if (tail) {
-	name += "." + tail.join(".");
-  }
-
-  return name;
+  return prefix + name + (attr ? "." + attr : "");
 };
 
 Blockly.PythonOcto['lexical_variable_get'] = function(block) {
