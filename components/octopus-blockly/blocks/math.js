@@ -278,11 +278,11 @@ Blockly.Blocks['math_change'] = {
    * @this Blockly.Block
    */
   getVars: function() {
-    return [this.getFieldValue('VAR')];
+    return [this.getField_('VAR').getFullVariableName()];
   },
   getVariable: function () {
 	var scope = this.getVariableScope();
-	return scope && scope.getScopedVariable(this.getFieldValue('VAR'));
+	return scope && scope.getScopedVariable(this.getField_('VAR').getFullVariableName());
   },
   /**
    * Notification that a variable is renaming.
@@ -293,7 +293,7 @@ Blockly.Blocks['math_change'] = {
    * @this Blockly.Block
    */
   renameVar: function(oldName, newName, variable) {
-    if (Blockly.Names.equals(oldName, this.getFieldValue('VAR'))) {
+    if (Blockly.Names.equals(oldName, this.getField_('VAR').getFullVariableName())) {
       this.getField_('VAR').setValue(variable);
     }
   },

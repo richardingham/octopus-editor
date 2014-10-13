@@ -93,8 +93,11 @@ goog.inherits(Blockly.FieldLexicalVariable, Blockly.FieldDropdown);
  * @return {string} Current text.
  */
 Blockly.FieldLexicalVariable.prototype.getValue = function() {
+  return this.value_ ? this.text_ + '@@' + this.value_ : this.text_;
+};
+
+Blockly.FieldLexicalVariable.prototype.getFullVariableName = function() {
   return this.value_;
-  //return this.getText();
 };
 
 /**
@@ -103,15 +106,30 @@ Blockly.FieldLexicalVariable.prototype.getValue = function() {
  */
 Blockly.FieldLexicalVariable.prototype.setValue = function (variable) {
   if (this.block_ && this.block_.isInFlyout) {
-    this.value_ = variable;
+    var i1 = variable.indexOf('::');
+    var i2 = variable.indexOf('@@');
+    if (i1 >= 0 && i2 >= 0 && i2 < i1) {
+	  this.value_ = variable.substring(2 + i2);
+	  this.setText(variable.substring(0, i2));
+	  return;
+	}
+	this.value_ = variable;
 	this.setText(variable);
 	return;
   }
   if (typeof variable === "string" && this.block_) {
-    var scope = this.block_.getVariableScope();
-    var scopedVariable = scope.getScopedVariable(variable);
-	if (scopedVariable) {
-	  variable = scopedVariable;
+    var i1 = variable.indexOf('::');
+    var i2 = variable.indexOf('@@');
+    if (i1 >= 0 && i2 >= 0 && i2 < i1) {
+	  this.value_ = variable.substring(2 + i2);
+	  this.setText(variable.substring(0, i2));
+	  return;
+	} else {
+      var scope = this.block_.getVariableScope();
+      var scopedVariable = scope.getScopedVariable(variable);
+	  if (scopedVariable) {
+	    variable = scopedVariable;
+	  }
 	}
   }
   if (!variable || typeof variable === "string") {

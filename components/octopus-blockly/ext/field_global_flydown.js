@@ -34,18 +34,23 @@ Blockly.FieldGlobalFlydown.prototype.flyoutCSSClassName = 'blocklyFieldParameter
  *  @return {!Array.<string>} List of two XML elements.
  **/
 Blockly.FieldGlobalFlydown.prototype.flydownBlocksXML_ = function() {
-  var name = Blockly.globalNamePrefix + " " + this.getText(); // global name for this parameter field.
+  var name, v = this.sourceBlock_.variable_;
+  if (v) {
+    name = v.getDisplay() + '@@' + v.getName();
+  } else {
+    name = Blockly.globalNamePrefix + " " + this.getText(); // global name for this parameter field.
+  }
   var getterSetterXML =
       '<xml>' +
         '<block type="lexical_variable_get">' +
-          '<title name="VAR">' +
+          '<field name="VAR">' +
             name +
-          '</title>' +
+          '</field>' +
         '</block>' +
         '<block type="lexical_variable_set">' +
-          '<title name="VAR">' +
+          '<field name="VAR">' +
             name +
-          '</title>' +
+          '</field>' +
         '</block>' +
       '</xml>';
   return getterSetterXML;

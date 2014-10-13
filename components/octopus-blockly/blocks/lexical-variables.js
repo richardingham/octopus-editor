@@ -73,15 +73,15 @@ Blockly.Blocks['lexical_variable_get'] = {
   //},
   getVariable: function () {
 	var scope = this.getVariableScope();
-	return scope && scope.getScopedVariable(this.getFieldValue('VAR'));
+	return scope && scope.getScopedVariable(this.getField_('VAR').getFullVariableName());
   },
   renameVar: function(oldName, newName, variable) {
-    if (Blockly.Names.equals(oldName, this.getFieldValue('VAR'))) {
+    if (Blockly.Names.equals(oldName, this.getField_('VAR').getFullVariableName())) {
       this.getField_('VAR').setValue(variable);
     }
   },
   getVars: function() {
-    return [this.getFieldValue('VAR')];
+    return [this.getField_('VAR').getFullVariableName()];
   },/*
   renameLexicalVar: function(oldName, newName) {
     // console.log("Renaming lexical variable from " + oldName + " to " + newName);
@@ -151,15 +151,15 @@ Blockly.Blocks['lexical_variable_set'] = {
   //},
   getVariable: function () {
 	var scope = this.getVariableScope();
-	return scope && scope.getScopedVariable(this.getFieldValue('VAR'));
+	return scope && scope.getScopedVariable(this.getField_('VAR').getFullVariableName());
   },
   renameVar: function(oldName, newName, variable) {
-    if (Blockly.Names.equals(oldName, this.getFieldValue('VAR'))) {
+    if (Blockly.Names.equals(oldName, this.getField_('VAR').getFullVariableName())) {
       this.getField_('VAR').setValue(variable);
     }
   },
   getVars: function() {
-    return [this.getFieldValue('VAR')];
+    return [this.getField_('VAR').getFullVariableName()];
   },
   /*renameLexicalVar: Blockly.Blocks.lexical_variable_get.renameLexicalVar,
   renameFree: function (freeSubstitution) {
