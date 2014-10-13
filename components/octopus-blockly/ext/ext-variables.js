@@ -30,7 +30,6 @@ goog.provide('Blockly.GlobalScope');
 
 // TODO(scr): Fix circular dependencies
 // goog.require('Blockly.Block');
-goog.require('Blockly.Toolbox');
 goog.require('Blockly.Workspace');
 
 Blockly.Variable = function (name, scope, subScope) {
@@ -100,7 +99,7 @@ Blockly.Variable.prototype.setName = function (name) {
 
 	if (!this.scope_.isAvailableName(varName, attribute)) {
 		varName = this.scope_.validName(varName, this.varName_);
-		name = this.scope_.getScopeName_() + '::' + varName;
+		name = this.getScopeName_() + '::' + varName;
 		if (attribute) {
 			name += "::" + attribute;
 		}
