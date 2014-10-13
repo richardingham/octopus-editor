@@ -432,9 +432,10 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   declaredNames: function() { // [lyn, 10/11/13] return the names of all parameters of this procedure
      return this.getVars();
   },
-  renameVar: function(oldName, newName) {
-    this.renameVars(Blockly.Substitution.simpleSubstitution(oldName,newName));
-  },
+  //renameVar: function(oldName, newName) {
+  //  this.renameVars(Blockly.Substitution.simpleSubstitution(oldName,newName));
+  //},
+  /*
   renameVars: function(substitution) { // renaming is a dict (i.e., object) mapping old names to new ones
     var oldParams = this.getParameters();
     var newParams = substitution.map(oldParams);
@@ -475,7 +476,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     } else {
       throw "Violation of invariant: procedure declaration has nonempty free variables: " + result.toString();
     }
-  },
+  },*/
   // [lyn, 11/24/12] return list of procedure body (if there is one)
   blocksInScope: function () {
     var body = this.getInputTargetBlock(this.bodyInputName);
@@ -526,11 +527,11 @@ Blockly.Blocks['procedures_defreturn'] = {
   getProcedureDef: Blockly.Blocks.procedures_defnoreturn.getProcedureDef,
   getVars: Blockly.Blocks.procedures_defnoreturn.getVars,
   declaredNames: Blockly.Blocks.procedures_defnoreturn.declaredNames,
-  renameVar: Blockly.Blocks.procedures_defnoreturn.renameVar,
-  renameVars: Blockly.Blocks.procedures_defnoreturn.renameVars,
-  renameBound: Blockly.Blocks.procedures_defnoreturn.renameBound,
-  renameFree: Blockly.Blocks.procedures_defnoreturn.renameFree,
-  freeVariables: Blockly.Blocks.procedures_defnoreturn.freeVariables,
+  //renameVar: Blockly.Blocks.procedures_defnoreturn.renameVar,
+  //renameVars: Blockly.Blocks.procedures_defnoreturn.renameVars,
+  //renameBound: Blockly.Blocks.procedures_defnoreturn.renameBound,
+  //renameFree: Blockly.Blocks.procedures_defnoreturn.renameFree,
+  //freeVariables: Blockly.Blocks.procedures_defnoreturn.freeVariables,
   blocksInScope: Blockly.Blocks.procedures_defnoreturn.blocksInScope,
   //typeblock: [{ translatedName: Blockly.Msg.LANG_PROCEDURES_DEFRETURN_PROCEDURE +
   //    ' ' + Blockly.Msg.LANG_PROCEDURES_DEFRETURN_RETURN }],
@@ -823,14 +824,14 @@ Blockly.Blocks['procedures_callnoreturn'] = {
       // [lyn, 10/27/13] Above. set tracking to true in case this is a block with argument subblocks.
       // and there's an open mutator.
   },
-  renameVar: function(oldName, newName) {
+  /*renameVar: function(oldName, newName) {
     for (var x = 0; x < this.arguments_.length; x++) {
       if (Blockly.Names.equals(oldName, this.arguments_[x])) {
         this.arguments_[x] = newName;
         this.getInput('ARG' + x).fieldRow[0].setText(newName);
       }
     }
-  },
+  },*/
   procCustomContextMenu: function(options) {
     // Add option to find caller.
     var option = {enabled: true};
@@ -883,7 +884,7 @@ Blockly.Blocks['procedures_callreturn'] = {
       Blockly.Blocks.procedures_callnoreturn.setProcedureParameters,
   mutationToDom: Blockly.Blocks.procedures_callnoreturn.mutationToDom,
   domToMutation: Blockly.Blocks.procedures_callnoreturn.domToMutation,
-  renameVar: Blockly.Blocks.procedures_callnoreturn.renameVar,
+  //renameVar: Blockly.Blocks.procedures_callnoreturn.renameVar,
   procCustomContextMenu: Blockly.Blocks.procedures_callnoreturn.procCustomContextMenu,
   removeProcedureValue: Blockly.Blocks.procedures_callnoreturn.removeProcedureValue,
   // This generates a single generic call to 'call return' defaulting its value
@@ -968,7 +969,7 @@ Blockly.Blocks['procedures_callnamedsequence'] = {
       Blockly.Blocks.procedures_callnoreturn.setProcedureParameters,
   mutationToDom: Blockly.Blocks.procedures_callnoreturn.mutationToDom,
   domToMutation: Blockly.Blocks.procedures_callnoreturn.domToMutation,
-  renameVar: Blockly.Blocks.procedures_callnoreturn.renameVar,
+  //renameVar: Blockly.Blocks.procedures_callnoreturn.renameVar,
   procCustomContextMenu: Blockly.Blocks.procedures_callnoreturn.procCustomContextMenu,
   removeProcedureValue: Blockly.Blocks.procedures_callnoreturn.removeProcedureValue,
   // This generates a single generic call to 'call return' defaulting its value
