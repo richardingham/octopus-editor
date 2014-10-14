@@ -43,6 +43,11 @@ Blockly.Blocks['global_declaration'] = {
 	  this.variable_.setName(newName);
 	} 
 	return this.variable_.getVarName();
+  },
+  disposed: function () {
+	if (this.variable_) {
+	  this.variable_.getScope().removeVariable(this.variable_.getVarName());
+	}
   }
   //typeblock: [{ translatedName: Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_TITLE_INIT }]
 };

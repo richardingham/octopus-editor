@@ -135,6 +135,11 @@ Blockly.Blocks['machine_vapourtec_R2R4'] = {
 	this.variable_.setName(newName);
 	return this.variable_.getVarName();
   },
+  disposed: function () {
+	if (this.variable_) {
+	  this.variable_.getScope().removeVariable(this.variable_.getVarName());
+	}
+  },
 
   getVariablesMenu: function(name, forSetter) {
 	return [
