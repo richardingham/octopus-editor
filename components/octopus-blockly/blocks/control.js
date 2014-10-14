@@ -38,23 +38,12 @@ Blockly.Blocks['controls_run'] = {
     //this.setHelpUrl(Blockly.Msg.CONTROLS_WAIT_HELPURL);
     this.setColour(5);
     this.appendDummyInput()
-        .appendField('run'); //Blockly.Msg.CONTROLS_IF_MSG_IF);
+        .appendField('run')
+		.appendField(new Blockly.FieldDropdown([
+			['immediately', 'IMMEDIATELY'],
+			['paused', 'PAUSED']
+		]), 'MODE');
     this.appendStatementInput('STACK');
     this.setTooltip('Runs the sequence on execution'); //Blockly.Msg.CONTROLS_WAIT_TOOLTIP);
-  }
-};
-
-Blockly.Blocks['controls_runlater'] = {
-  /**
-   * Block for run later statement
-   * @this Blockly.Block
-   */
-  init: function() {
-    //this.setHelpUrl(Blockly.Msg.CONTROLS_WAIT_HELPURL);
-    this.setColour(5);
-    this.appendDummyInput()
-        .appendField('run (paused)'); //Blockly.Msg.CONTROLS_IF_MSG_IF);
-    this.appendStatementInput('STACK');
-    this.setTooltip('Runs the sequence but start paused'); //Blockly.Msg.CONTROLS_WAIT_TOOLTIP);
   }
 };
