@@ -29,30 +29,30 @@ goog.provide('Blockly.Blocks.machines');
 goog.require('Blockly.Blocks');
 
 var _R2R4_vars = [{
-	name: "power", title: "Power", type: "string"
+	name: "power", title: "Power", type: "String"
 },{
-	name: "pressure", title: "System Pressure", type: "integer", readonly: true
+	name: "pressure", title: "System Pressure", type: "Number", readonly: true
 }, {
 	name: "pump1", title: "Pump A", parts: [
-		{ name: "target", title: "Target", type: "integer" },
-		{ name: "rate", title: "Flow Rate", type: "integer", readonly: true },
-		{ name: "pressure", title: "Pressure", type: "integer", readonly: true },
-		{ name: "input", title: "Input", type: "string" },
-		{ name: "airlock", title: "Airlock", type: "integer", readonly: true }
+		{ name: "target", title: "Target", type: "Number" },
+		{ name: "rate", title: "Flow Rate", type: "Number", readonly: true },
+		{ name: "pressure", title: "Pressure", type: "Number", readonly: true },
+		{ name: "input", title: "Input", type: "String" },
+		{ name: "airlock", title: "Airlock", type: "Number", readonly: true }
 	]
 }, {
 	name: "heater1", title: "Heater A", parts: [
-		{ name: "target", title: "Target", type: "integer" },
-		{ name: "temp", title: "Temperature", type: "integer", readonly: true },
-		{ name: "mode", title: "Mode", type: "integer", readonly: true },
-		{ name: "power", title: "Power", type: "integer", readonly: true }
+		{ name: "target", title: "Target", type: "Number" },
+		{ name: "temp", title: "Temperature", type: "Number", readonly: true },
+		{ name: "mode", title: "Mode", type: "Number", readonly: true },
+		{ name: "power", title: "Power", type: "Number", readonly: true }
 	]
 }, {
 	name: "heater2", title: "Heater B", parts: [
-		{ name: "target", title: "Target", type: "integer" },
-		{ name: "temp", title: "Temperature", type: "integer", readonly: true },
-		{ name: "mode", title: "Mode", type: "integer", readonly: true },
-		{ name: "power", title: "Power", type: "integer", readonly: true }
+		{ name: "target", title: "Target", type: "Number" },
+		{ name: "temp", title: "Temperature", type: "Number", readonly: true },
+		{ name: "mode", title: "Mode", type: "Number", readonly: true },
+		{ name: "power", title: "Power", type: "Number", readonly: true }
 	]
 }]
 

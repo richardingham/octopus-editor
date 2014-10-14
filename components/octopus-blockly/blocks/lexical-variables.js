@@ -80,6 +80,9 @@ Blockly.Blocks['lexical_variable_get'] = {
       this.getField_('VAR').setValue(variable);
     }
   },
+  setVarType_: function (type) {
+    this.changeOutput(type);
+  },
   getVars: function() {
     return [this.getField_('VAR').getFullVariableName()];
   },/*
@@ -157,6 +160,9 @@ Blockly.Blocks['lexical_variable_set'] = {
     if (Blockly.Names.equals(oldName, this.getField_('VAR').getFullVariableName())) {
       this.getField_('VAR').setValue(variable);
     }
+  },
+  setVarType_: function (type) {
+    this.getInput('VALUE').setCheck(type);
   },
   getVars: function() {
     return [this.getField_('VAR').getFullVariableName()];

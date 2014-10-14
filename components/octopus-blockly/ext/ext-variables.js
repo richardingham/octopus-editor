@@ -37,7 +37,7 @@ Blockly.Variable = function (name, scope, subScope) {
 	this.display_ = null;
 	this.scope_ = scope;
 	this.subScope_ = subScope;
-	this.type_ = "all";
+	this.type_ = null;
 	this.readonly = false;
 
 	// local.subscope::myvar
@@ -152,6 +152,10 @@ Blockly.Variable.prototype.setReadonly = function (readonly) {
 
 Blockly.Variable.prototype.setType = function (type) {
 	this.type_ = type;
+};
+
+Blockly.Variable.prototype.getType = function () {
+	return this.type_;
 };
 
 Blockly.Variable.prototype.addAttribute = function (name) {
