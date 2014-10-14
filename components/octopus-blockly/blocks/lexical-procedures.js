@@ -435,48 +435,6 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   //renameVar: function(oldName, newName) {
   //  this.renameVars(Blockly.Substitution.simpleSubstitution(oldName,newName));
   //},
-  /*
-  renameVars: function(substitution) { // renaming is a dict (i.e., object) mapping old names to new ones
-    var oldParams = this.getParameters();
-    var newParams = substitution.map(oldParams);
-    if (!Blockly.LexicalVariable.stringListsEqual(oldParams, newParams)) {
-      this.updateParams_(newParams);
-      // Update the mutator's variables if the mutator is open.
-      if (this.mutator.isVisible()) {
-        var blocks = this.mutator.workspace_.getAllBlocks();
-        for (var x = 0, block; block = blocks[x]; x++) {
-          if (block.type == 'procedures_mutatorarg') {
-            var oldName = block.getFieldValue('NAME');
-            var newName = substitution.apply(oldName);
-            if (newName !== oldName) {
-              block.setFieldValue(newName, 'NAME');
-            }
-          }
-        }
-      }
-    }
-  },
-  renameBound: function (boundSubstitution, freeSubstitution) {
-    var paramSubstitution = boundSubstitution.restrictDomain(this.declaredNames());
-    this.renameVars(paramSubstitution);
-    var newFreeSubstitution = freeSubstitution.extend(paramSubstitution);
-    Blockly.LexicalVariable.renameFree(this.getInputTargetBlock(this.bodyInputName), newFreeSubstitution);
-  },
-  renameFree: function (freeSubstitution) { // Should have no effect since only top-level procedures.
-    var freeVars = this.freeVariables(); // Calculate free variables, which should be empty,
-                                         // throwing exception if not.
-    // There should be no free variables, and so nothing to rename. Do nothing else.
-  },
-  freeVariables: function() { // return the free lexical variables of this block
-                              // Should return the empty set: something is wrong if it doesn't!
-    var result = Blockly.LexicalVariable.freeVariables(this.getInputTargetBlock(this.bodyInputName));
-    result.subtract(new Blockly.NameSet(this.declaredNames()));
-    if (result.isEmpty()) {
-      return result;
-    } else {
-      throw "Violation of invariant: procedure declaration has nonempty free variables: " + result.toString();
-    }
-  },*/
   // [lyn, 11/24/12] return list of procedure body (if there is one)
   blocksInScope: function () {
     var body = this.getInputTargetBlock(this.bodyInputName);
@@ -527,11 +485,6 @@ Blockly.Blocks['procedures_defreturn'] = {
   getProcedureDef: Blockly.Blocks.procedures_defnoreturn.getProcedureDef,
   getVars: Blockly.Blocks.procedures_defnoreturn.getVars,
   declaredNames: Blockly.Blocks.procedures_defnoreturn.declaredNames,
-  //renameVar: Blockly.Blocks.procedures_defnoreturn.renameVar,
-  //renameVars: Blockly.Blocks.procedures_defnoreturn.renameVars,
-  //renameBound: Blockly.Blocks.procedures_defnoreturn.renameBound,
-  //renameFree: Blockly.Blocks.procedures_defnoreturn.renameFree,
-  //freeVariables: Blockly.Blocks.procedures_defnoreturn.freeVariables,
   blocksInScope: Blockly.Blocks.procedures_defnoreturn.blocksInScope,
   //typeblock: [{ translatedName: Blockly.Msg.LANG_PROCEDURES_DEFRETURN_PROCEDURE +
   //    ' ' + Blockly.Msg.LANG_PROCEDURES_DEFRETURN_RETURN }],
@@ -607,7 +560,6 @@ Blockly.Blocks['procedures_mutatorarg'] = {
     }
     if (this.variable_) {
       this.attached_ = true;
-	  //console.log("Var " + this.variable_.getVarName() + " attached");
       return;
     }
     var paramName = this.getFieldValue('NAME');
@@ -617,7 +569,6 @@ Blockly.Blocks['procedures_mutatorarg'] = {
     }
     this.attached_ = true;
     this.variable_ = scope.addVariable(newName);
-	//console.log("Var " + paramName + " attached");
   },
   disposed: function () {
     var scope = this.getScope();
@@ -625,7 +576,6 @@ Blockly.Blocks['procedures_mutatorarg'] = {
       return;
     }
     scope.removeVariable(this.variable_.getVarName());
-	//console.log("Var " + this.variable_.getVarName() + " removed");
     delete this.variable_;
   },
   // TODO: this could possibly all be rewritten and incorporated into the decompose() function.
@@ -652,7 +602,6 @@ Blockly.Blocks['procedures_mutatorarg'] = {
 		this.created();
       } else if (oldContainer && !newContainer) {
 	    this.attached_ = false;
-		//console.log("Var " + paramName + " detached");
       }
 	}
   }

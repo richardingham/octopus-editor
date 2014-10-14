@@ -392,11 +392,6 @@ Blockly.VariableScope.prototype.getVariablesInScope = function () {
     block = block.getSurroundParent();
   } while (block);
 
-  // Global vars are in a separate namespace.
-  //if (Blockly.GlobalScope) {
-  //  scopes.push(Blockly.GlobalScope.getVariables());
-  //}
-
   variables = this.flattenScopedVariableArray_(scopes);
 
   return variables;

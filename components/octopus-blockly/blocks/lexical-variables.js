@@ -3,7 +3,7 @@
  */
 Blockly.Blocks['global_declaration'] = {
   // Global var defn
-  //category: 'Variables',
+  category: 'Variables',
   //helpUrl: Blockly.Msg.LANG_VARIABLES_GLOBAL_DECLARATION_HELPURL,
   init: function() {
     this.setColour(330);
@@ -52,7 +52,7 @@ Blockly.Blocks['global_declaration'] = {
  */
 Blockly.Blocks['lexical_variable_get'] = {
   // Variable getter.
-  //category: 'Variables',
+  category: 'Variables',
   //helpUrl: Blockly.Msg.LANG_VARIABLES_GET_HELPURL,
   init: function() {
     this.setColour(330);
@@ -65,12 +65,6 @@ Blockly.Blocks['lexical_variable_get'] = {
     this.setTooltip(''); //Blockly.Msg.LANG_VARIABLES_GET_TOOLTIP);
     //this.errors = [{name:"checkIsInDefinition"},{name:"checkDropDownContainsValidValue",dropDowns:["VAR"]}];
   },
-  //mutationToDom: function() { // Handle getters for event parameters specially (to support i8n)
-  //  return Blockly.LexicalVariable.eventParamMutationToDom(this);
-  //},
-  //domToMutation: function(xmlElement) { // Handler getters for event parameters specially (to support i8n)
-  //  Blockly.LexicalVariable.eventParamDomToMutation(this, xmlElement);
-  //},
   getVariable: function () {
 	var scope = this.getVariableScope();
 	return scope && scope.getScopedVariable(this.getField_('VAR').getFullVariableName());
@@ -85,44 +79,7 @@ Blockly.Blocks['lexical_variable_get'] = {
   },
   getVars: function() {
     return [this.getField_('VAR').getFullVariableName()];
-  },/*
-  renameLexicalVar: function(oldName, newName) {
-    // console.log("Renaming lexical variable from " + oldName + " to " + newName);
-    var currentValue = this.getFieldValue('VAR');
-	if (oldName === currentValue) {
-      this.setFieldValue(newName, 'VAR');
-    } else if (Array.isArray(currentValue)) {
-	  // TODO: potential bug if variables other than machines are allowed to have sub-items.
-	  // This would require rewriting how variable references are stored.
-	  if (currentValue[0] == Blockly.unprefixName(oldName)[1]) {
-		currentValue[0] = Blockly.unprefixName(newName)[1];
-        this.setFieldValue(currentValue, 'VAR');
-	  }
-	}
-  },
-  renameFree: function (freeSubstitution) {
-    var prefixPair = Blockly.unprefixName(this.getFieldValue('VAR'));
-    var prefix = prefixPair[0];
-    // Only rename lexical (nonglobal) names
-    if (prefix !== Blockly.globalNamePrefix) {
-      var oldName = prefixPair[1];
-      var newName = freeSubstitution.apply(oldName);
-      if (newName !== oldName) {
-        this.renameLexicalVar(oldName, newName);
-      }
-    }
-  },
-  freeVariables: function() { // return the free lexical variables of this block
-    var prefixPair = Blockly.unprefixName(this.getFieldValue('VAR'));
-    var prefix = prefixPair[0];
-    // Only return lexical (nonglobal) names
-    if (prefix !== Blockly.globalNamePrefix) {
-      var oldName = prefixPair[1];
-      return new Blockly.NameSet([oldName])
-    } else {
-      return new Blockly.NameSet();
-    }
-  },*/
+  }
   //typeblock: [{ translatedName: Blockly.Msg.LANG_VARIABLES_GET_TITLE_GET + Blockly.Msg.LANG_VARIABLES_VARIABLE }]
 };
 
@@ -131,7 +88,7 @@ Blockly.Blocks['lexical_variable_get'] = {
  */
 Blockly.Blocks['lexical_variable_set'] = {
   // Variable setter.
-  //category: 'Variables',
+  category: 'Variables',
   //helpUrl: Blockly.Msg.LANG_VARIABLES_SET_HELPURL, // *** [lyn, 11/10/12] Fix this
   init: function() {
     this.setColour(330); //Blockly.VARIABLE_CATEGORY_HUE);
@@ -146,12 +103,6 @@ Blockly.Blocks['lexical_variable_set'] = {
     this.setTooltip(''); //Blockly.Msg.LANG_VARIABLES_SET_TOOLTIP);
     //this.errors = [{name:"checkIsInDefinition"},{name:"checkDropDownContainsValidValue",dropDowns:["VAR"]}];
   },
-  //mutationToDom: function() { // Handle setters for event parameters specially (to support i8n)
-  //  return Blockly.LexicalVariable.eventParamMutationToDom(this);
-  //},
-  //domToMutation: function(xmlElement) { // Handler setters for event parameters specially (to support i8n)
- //   Blockly.LexicalVariable.eventParamDomToMutation(this, xmlElement);
-  //},
   getVariable: function () {
 	var scope = this.getVariableScope();
 	return scope && scope.getScopedVariable(this.getField_('VAR').getFullVariableName());
@@ -166,26 +117,6 @@ Blockly.Blocks['lexical_variable_set'] = {
   },
   getVars: function() {
     return [this.getField_('VAR').getFullVariableName()];
-  },
-  /*renameLexicalVar: Blockly.Blocks.lexical_variable_get.renameLexicalVar,
-  renameFree: function (freeSubstitution) {
-    Blockly.Blocks.lexical_variable_get.renameFree.call(this, freeSubstitution);
-
-    // [lyn, 06/26/2014] Don't forget to rename children!
-    this.getChildren().map( function(blk) { Blockly.LexicalVariable.renameFree(blk, freeSubstitution); })
-  },
-  freeVariables: function() { // return the free lexical variables of this block
-    // [lyn, 06/27/2014] Find free vars of *all* children, including subsequent commands in NEXT slot.
-    var childrenFreeVars = this.getChildren().map( function(blk) { return Blockly.LexicalVariable.freeVariables(blk); } );
-    var result = Blockly.NameSet.unionAll(childrenFreeVars);
-    var prefixPair = Blockly.unprefixName(this.getFieldValue('VAR'));
-    var prefix = prefixPair[0];
-    // Only return lexical (nonglobal) names
-    if (prefix !== Blockly.globalNamePrefix) {
-      var oldName = prefixPair[1];
-      result.insert(oldName);
-    }
-    return result;
-  },*/
+  }
   //typeblock: [{ translatedName: Blockly.Msg.LANG_VARIABLES_SET_TITLE_SET + Blockly.Msg.LANG_VARIABLES_VARIABLE }]
 };
