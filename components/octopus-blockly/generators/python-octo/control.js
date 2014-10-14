@@ -103,9 +103,8 @@ Blockly.PythonOcto['controls_wait_until'] = function(block) {
 
 Blockly.PythonOcto['controls_run'] = function(block) {
   var later = block.getFieldValue('MODE') === 'PAUSED';
-  var argument = Blockly.PythonOcto.valueToCode(block, 'STACK',
-      Blockly.PythonOcto.ORDER_NONE) || 'sequence()';
-  var code = 'run' + (later ? '_later' : '') + '(' + argument + ')';
+  var branch = Blockly.PythonOcto.statementToCode(block, 'STACK') || 'sequence()';
+  var code = 'run' + (later ? '_later' : '') + '(' + branch + ')';
   return code;
 };
 
