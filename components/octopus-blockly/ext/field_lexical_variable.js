@@ -93,7 +93,7 @@ goog.inherits(Blockly.FieldLexicalVariable, Blockly.FieldDropdown);
  * @return {string} Current text.
  */
 Blockly.FieldLexicalVariable.prototype.getValue = function() {
-  return this.value_ ? this.text_ + '@@' + this.value_ : this.text_;
+  return (this.value_ && this.value_.trim()) ? this.text_ + '@@' + this.value_ : this.text_;
 };
 
 Blockly.FieldLexicalVariable.prototype.getFullVariableName = function() {
