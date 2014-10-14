@@ -255,19 +255,20 @@ Blockly.Blocks['math_change'] = {
   init: function() {
     this.setHelpUrl(Blockly.Msg.MATH_CHANGE_HELPURL);
     this.setColour(230);
-    this.interpolateMsg(
-        // TODO: Combine these messages instead of using concatenation.
-        Blockly.Msg.MATH_CHANGE_TITLE_CHANGE + ' %1 ' +
-        Blockly.Msg.MATH_CHANGE_INPUT_BY + ' %2',
-        ['VAR', new Blockly.FieldVariable(Blockly.Msg.MATH_CHANGE_TITLE_ITEM)],
-        ['DELTA', 'Number', Blockly.ALIGN_RIGHT],
-        Blockly.ALIGN_RIGHT);
+    this.appendDummyInput()
+		.appendField(new Blockly.FieldDropdown([
+			['increment', 'INCREMENT'],
+			['decrement', 'DECREMENT']
+		]), 'MODE')
+        .appendField(new Blockly.FieldLexicalVariable(" ", true), 'VAR');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     // Assign 'this' to a variable for use in the tooltip closure below.
     var thisBlock = this;
     this.setTooltip(function() {
-      return Blockly.Msg.MATH_CHANGE_TOOLTIP.replace('%1',
+      
+	  // TODO: new tooltips
+	  return Blockly.Msg.MATH_CHANGE_TOOLTIP.replace('%1',
           thisBlock.getFieldValue('VAR'));
     });
   },
@@ -277,20 +278,27 @@ Blockly.Blocks['math_change'] = {
    * @this Blockly.Block
    */
   getVars: function() {
-    return [this.getFieldValue('VAR')];
+    return [this.getField_('VAR').getFullVariableName()];
+  },
+  getVariable: function () {
+	var scope = this.getVariableScope();
+	return scope && scope.getScopedVariable(this.getField_('VAR').getFullVariableName());
   },
   /**
    * Notification that a variable is renaming.
    * If the name matches one of this block's variables, rename it.
    * @param {string} oldName Previous name of variable.
    * @param {string} newName Renamed variable.
+   * @param {Blockly.Variable} variable The variable in question.
    * @this Blockly.Block
    */
-  renameVar: function(oldName, newName) {
-    if (Blockly.Names.equals(oldName, this.getFieldValue('VAR'))) {
-      this.setFieldValue(newName, 'VAR');
+  renameVar: function(oldName, newName, variable) {
+    if (Blockly.Names.equals(oldName, this.getField_('VAR').getFullVariableName())) {
+      this.getField_('VAR').setValue(variable);
     }
-  }
+  },
+  /*renameLexicalVar: Blockly.Blocks.lexical_variable_get.renameLexicalVar,
+  renameFree: Blockly.Blocks.lexical_variable_get.renameFree*/
 };
 
 Blockly.Blocks['math_round'] = {

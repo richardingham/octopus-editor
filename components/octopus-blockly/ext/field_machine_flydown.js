@@ -11,6 +11,8 @@
 goog.provide('Blockly.FieldMachineFlydown');
 
 goog.require('Blockly.FieldFlydown');
+goog.require('Blockly.FieldLexicalVariable');
+goog.require('Blockly.LexicalVariable');
 
 /**
  * Class for a clickable global variable declaration field.
@@ -18,10 +20,10 @@ goog.require('Blockly.FieldFlydown');
  * @extends {Blockly.Field}
  * @constructor
  */
-Blockly.FieldMachineFlydown = function(name, displayLocation) {
+Blockly.FieldMachineFlydown = function(name, displayLocation, changeHandler) {
   Blockly.FieldMachineFlydown.superClass_.constructor.call(this, name, true, displayLocation,
       // rename all references to this global variable
-      Blockly.LexicalVariable.renameGlobal)
+      changeHandler)
 };
 goog.inherits(Blockly.FieldMachineFlydown, Blockly.FieldFlydown);
 
@@ -35,16 +37,19 @@ Blockly.FieldMachineFlydown.prototype.flyoutCSSClassName = 'blocklyFieldParamete
  *  @return {!Array.<string>} List of two XML elements.
  **/
 Blockly.FieldMachineFlydown.prototype.flydownBlocksXML_ = function() {
-  var name = Blockly.machineNamePrefix + " " + this.getText(); // global name for this parameter field.
+  var name, v = this.sourceBlock_.variable_;
+  if (v) {
+    name = v.getDisplay() + '@@' + v.getName();
+  } else {
+    name = Blockly.machineNamePrefix + " " + this.getText(); // global name for this parameter field.
+  }
   var getterSetterXML =
       '<xml>' +
         '<block type="lexical_variable_get">' +
-          '<title name="VAR">' +
+          '<field name="VAR">' +
             name +
-          '</title>' +
+          '</field>' +
         '</block>' +
       '</xml>';
   return getterSetterXML;
 };
-
-

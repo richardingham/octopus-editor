@@ -31,7 +31,7 @@ goog.require('Blockly.PythonOcto');
 
 
 Blockly.PythonOcto['procedures_defreturn'] = function(block) {
-  // Define a procedure with a return value.
+  /*/ Define a procedure with a return value.
   // First, add a 'global' statement for every variable that is assigned.
   var globals = Blockly.Variables.allVariables(block);
   for (var i = globals.length - 1; i >= 0; i--) {
@@ -45,7 +45,7 @@ Blockly.PythonOcto['procedures_defreturn'] = function(block) {
       globals.splice(i, 1);
     }
   }
-  globals = globals.length ? '  global ' + globals.join(', ') + '\n' : '';
+  globals = globals.length ? '  global ' + globals.join(', ') + '\n' : '';*/
   var funcName = Blockly.PythonOcto.variableDB_.getName(block.getFieldValue('NAME'),
       Blockly.Procedures.NAME_TYPE);
   var branch = Blockly.PythonOcto.statementToCode(block, 'STACK');
@@ -61,9 +61,9 @@ Blockly.PythonOcto['procedures_defreturn'] = function(block) {
   var returnValue = Blockly.PythonOcto.valueToCode(block, 'RETURN',
       Blockly.PythonOcto.ORDER_NONE) || '';
   if (returnValue) {
-    returnValue = '  return ' + returnValue + '\n';
+    returnValue = 'return ' + returnValue + '\n';
   } else if (!branch) {
-    branch = '  pass';
+    branch = 'pass';
   }
   var args = [];
   for (var x = 0; x < block.arguments_.length; x++) {
@@ -71,7 +71,7 @@ Blockly.PythonOcto['procedures_defreturn'] = function(block) {
         Blockly.Variables.NAME_TYPE);
   }
   var code = 'def ' + funcName + '(' + args.join(', ') + '):\n' +
-      Blockly.PythonOcto.prefixLines(globals + branch + returnValue, Blockly.PythonOcto.INDENT);
+      Blockly.PythonOcto.prefixLines(branch + returnValue, Blockly.PythonOcto.INDENT);
   code = Blockly.PythonOcto.scrub_(block, code);
   Blockly.PythonOcto.definitions_[funcName] = code;
   return null;

@@ -147,16 +147,18 @@ Blockly.showPrefixToUser = true;
       }
     };
 
-  Blockly.possiblyPrefixMenuName = function (prefix, name) {
-    if (Array.isArray(prefix)) {
-	  name = prefix[1];
-	  prefix = prefix[0];
+  Blockly.possiblyPrefixMenuName = function (menuitem) {
+    if (Array.isArray(menuitem) && menuitem.length > 1) {
+	  var prefix = menuitem[0];
+	  var name = (
+	  	Blockly.showPrefixToUser || prefix === Blockly.globalNamePrefix ?
+	  	(prefix + Blockly.menuSeparator) : 
+	  	""
+	  ) + menuitem[1];
+	  menuitem[0] = menuitem[1] = name;
 	}
-    return (
-		Blockly.showPrefixToUser || prefix === Blockly.globalNamePrefix ?
-		(prefix + Blockly.menuSeparator) : 
-		""
-	) + name;
+
+    return menuitem;
   };
 
   // Curried for convenient use in generators/yail/variables.js
@@ -279,5 +281,20 @@ Blockly.Procedures.flyoutCategory = function(blocks, gaps, margin, workspace) {
 
 /******************************************************************************/
   
+/**
+ * When a procedure definition changes its parameters, find and edit all its
+ * callers.
+ * @param {string} name Name of edited procedure definition.
+ * @param {!Blockly.Workspace} workspace The workspace to delete callers from.
+ * @param {!Array.<string>} paramNames Array of new parameter names.
+ * @param {!Array.<string>} paramIds Array of unique parameter IDs.
+ */
+Blockly.Procedures.mutateCallers = function(name, workspace,
+                                            paramNames, paramIds, startTracking) {
+  var callers = Blockly.Procedures.getCallers(name, workspace);
+  for (var x = 0; x < callers.length; x++) {
+    callers[x].setProcedureParameters(paramNames, paramIds, startTracking);
+  }
+};
 
   
