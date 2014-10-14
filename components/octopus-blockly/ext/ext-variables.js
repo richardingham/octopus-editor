@@ -56,7 +56,7 @@ Blockly.Variable.variableRenamed_ = function (oldName, newName, variable) {
 };
 
 Blockly.Variable.prototype.getScopeName_ = function () {
-	return this.scope_.getName() + (this.subScope_ ? "." : "") + this.subScope_;
+	return this.scope_.getName() + (this.subScope_ ? "." + this.subScope_ : "");
 };
 
 Blockly.Variable.prototype.getName = function () {

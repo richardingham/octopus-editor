@@ -84,7 +84,12 @@ Blockly.FieldParameterFlydown.prototype.setText = function(text) {
   *  @return {!Array.<string>} List of two XML elements.
   */
 Blockly.FieldParameterFlydown.prototype.flydownBlocksXML_ = function() {
-  var name = this.getText(); // name in this parameter field.
+  var name, text = this.getText(), scope = this.sourceBlock_.getVariableScope();
+  if (scope) {
+    name = text + '@@' + scope.getName() + '::' + text;
+  } else {
+    name = text; // global name for this parameter field.
+  }
   var getterSetterXML =
        '<xml>' +
          '<block type="lexical_variable_get">' +
