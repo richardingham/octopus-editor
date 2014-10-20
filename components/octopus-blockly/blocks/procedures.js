@@ -24,11 +24,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Blocks.procedures');
-
-goog.require('Blockly.Blocks');
-
-
 Blockly.Blocks['procedures_defnoreturn'] = {
   /**
    * Block for defining a procedure with no return value.
@@ -292,14 +287,15 @@ Blockly.Blocks['procedures_defnoreturn'] = {
     var option = {enabled: true};
     var name = this.getFieldValue('NAME');
     option.text = Blockly.Msg.PROCEDURES_CREATE_DO.replace('%1', name);
-    var xmlMutation = goog.dom.createDom('mutation');
+    var xmlMutation = document.createElement('mutation');
     xmlMutation.setAttribute('name', name);
     for (var x = 0; x < this.arguments_.length; x++) {
-      var xmlArg = goog.dom.createDom('arg');
+      var xmlArg = document.createElement('arg');
       xmlArg.setAttribute('name', this.arguments_[x]);
       xmlMutation.appendChild(xmlArg);
     }
-    var xmlBlock = goog.dom.createDom('block', null, xmlMutation);
+    var xmlBlock = document.createElement('block');
+    xmlBlock.appendChild(xmlMutation);
     xmlBlock.setAttribute('type', this.callType_);
     option.callback = Blockly.ContextMenu.callbackFactory(this, xmlBlock);
     options.push(option);
@@ -310,9 +306,9 @@ Blockly.Blocks['procedures_defnoreturn'] = {
         var option = {enabled: true};
         var name = this.arguments_[x];
         option.text = Blockly.Msg.VARIABLES_SET_CREATE_GET.replace('%1', name);
-        var xmlField = goog.dom.createDom('field', null, name);
+        var xmlField = $('<field>').text(name);
         xmlField.setAttribute('name', 'VAR');
-        var xmlBlock = goog.dom.createDom('block', null, xmlField);
+        var xmlBlock = $('<block>').append(xmlField);
         xmlBlock.setAttribute('type', 'variables_get');
         option.callback = Blockly.ContextMenu.callbackFactory(this, xmlBlock);
         options.push(option);

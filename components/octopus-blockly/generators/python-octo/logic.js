@@ -25,10 +25,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.PythonOcto.logic');
-
-goog.require('Blockly.PythonOcto');
-
 
 /*Blockly.PythonOcto['controls_if'] = function(block) {
   // If/elseif/else condition.

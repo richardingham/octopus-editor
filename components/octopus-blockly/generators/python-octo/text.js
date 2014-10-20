@@ -25,11 +25,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.PythonOcto.text');
-
-goog.require('Blockly.PythonOcto');
-
-
 Blockly.PythonOcto['text'] = function(block) {
   // Text value.
   var code = Blockly.PythonOcto.quote_(block.getFieldValue('TEXT'));

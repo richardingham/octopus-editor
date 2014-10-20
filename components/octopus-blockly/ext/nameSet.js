@@ -12,8 +12,6 @@
  * [lyn, 11/16/13] created
  */
 
-goog.provide('Blockly.NameSet');
-
 /**
  * Construct a set from a list. If no list is provided, construct the empty set.
  */

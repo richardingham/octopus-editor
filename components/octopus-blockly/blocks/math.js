@@ -24,11 +24,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Blocks.math');
-
-goog.require('Blockly.Blocks');
-
-
 Blockly.Blocks['math_number'] = {
   /**
    * Block for numeric value.

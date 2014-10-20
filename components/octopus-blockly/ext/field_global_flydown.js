@@ -9,9 +9,6 @@
 
 'use strict';
 
-goog.provide('Blockly.FieldGlobalFlydown');
-
-goog.require('Blockly.FieldFlydown');
 
 /**
  * Class for a clickable global variable declaration field.
@@ -22,7 +19,7 @@ goog.require('Blockly.FieldFlydown');
 Blockly.FieldGlobalFlydown = function(name, displayLocation, changeHandler) {
   Blockly.FieldGlobalFlydown.superClass_.constructor.call(this, name, true, displayLocation, changeHandler);
 };
-goog.inherits(Blockly.FieldGlobalFlydown, Blockly.FieldFlydown);
+inherits(Blockly.FieldGlobalFlydown, Blockly.FieldFlydown);
 
 Blockly.FieldGlobalFlydown.prototype.fieldCSSClassName = 'blocklyFieldParameter';
 

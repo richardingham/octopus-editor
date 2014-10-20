@@ -5,11 +5,6 @@
 
 'use strict';
 
-goog.provide('Blockly.PythonOcto');
-
-goog.require('Blockly.Generator');
-goog.require('goog.string');
-
 
 /**
  * Python code generator.
@@ -145,7 +140,12 @@ Blockly.PythonOcto.scrubNakedValue = function(line) {
  * @private
  */
 Blockly.PythonOcto.quote_ = function(string) {
-  return goog.string.quote(string);
+  // TODO: This is a quick hack.  Replace with goog.string.quote
+  string = string.replace(/\\/g, '\\\\')
+                 .replace(/\n/g, '\\\n')
+                 .replace(/\%/g, '\\%')
+                 .replace(/'/g, '\\\'');
+  return '\'' + string + '\'';
 };
 
 
@@ -159,7 +159,7 @@ Blockly.PythonOcto.workspaceToCode = function() {
   var blocks = Blockly.mainWorkspace.getTopBlocks(true);
   for (var x = 0, block; block = blocks[x]; x++) {
     var line = this.blockToCode(block);
-    if (goog.isArray(line) && line.length === 2 && typeof line[1] === "number") {
+    if (Array.isArray(line) && line.length === 2 && typeof line[1] === "number") {
       // Value blocks return tuples of code and operator order.
       // Top-level blocks don't care about operator order.
       line = line[0];
@@ -223,10 +223,10 @@ Blockly.PythonOcto.blockToCode = function(block) {
   // The current prefered method of accessing the block is through the second
   // argument to func.call, which becomes the first parameter to the generator.
   var code = func.call(block, block);
-  if (goog.isArray(code)) {
+  if (Array.isArray(code)) {
     // Value blocks return tuples of code and operator order.
     return [this.scrub_(block, code[0]), code[1]];
-  } else if (goog.isString(code)) {
+  } else if (typeof code === "string") {
     if (this.STATEMENT_PREFIX) {
       code = this.STATEMENT_PREFIX.replace(/%1/g, '\'' + block.id + '\'') +
           code;
@@ -262,7 +262,7 @@ Blockly.PythonOcto.valueToCode = function(block, name, order) {
     // Disabled block.
     return '';
   }
-  if (!goog.isArray(tuple)) {
+  if (!Array.isArray(tuple)) {
     // Value blocks must return code and order of operations info.
     // Statement blocks must only return code.
     throw 'Expecting tuple from value block "' + targetBlock.type + '".';
@@ -301,7 +301,7 @@ Blockly.PythonOcto.statementToCode = function(block, name) {
   if (code === "") {
 	return code;
   }
-  if (!goog.isArray(code) || (code.length === 2 && typeof code[1] === "number")) {
+  if (!Array.isArray(code) || (code.length === 2 && typeof code[1] === "number")) {
     // Value blocks must return code and order of operations info.
     // Statement blocks must only return code.
     throw 'Expecting code from statement block "' + targetBlock.type + '".';

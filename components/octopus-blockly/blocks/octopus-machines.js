@@ -24,9 +24,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Blocks.machines');
-
-goog.require('Blockly.Blocks');
 
 var _R2R4_vars = [{
 	name: "power", title: "Power", type: "String"
@@ -56,7 +53,7 @@ var _R2R4_vars = [{
 	]
 }]
 
-var _ARROW_CHAR = goog.userAgent.ANDROID ? ' \u25B6 ' : ' \u25B8 ';
+var _ARROW_CHAR = /*goog.userAgent.ANDROID ? ' \u25B6 ' :*/ ' \u25B8 ';
 
 Blockly.Blocks['machine_vapourtec_R2R4'] = {
   init: function() {

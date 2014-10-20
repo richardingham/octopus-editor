@@ -35,9 +35,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.PythonOcto.control');
-
-goog.require('Blockly.PythonOcto');
 
 Blockly.PythonOcto['controls_if'] = function(block) {
   function stringFill (x, n) { 

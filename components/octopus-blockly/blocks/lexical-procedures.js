@@ -59,11 +59,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Blocks.procedures');
-
-goog.require('Blockly.Blocks.Utilities');
-goog.require('goog.dom');
-
 Blockly.Blocks['procedures_defnoreturn'] = {
   // Define a procedure with no return value.
   category: 'Procedures',  // Procedures are handled specially.
@@ -334,7 +329,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   },
   domToMutation: function(xmlElement) {
     var params = [], scope = this.variableScope_, name;
-    var children = goog.dom.getChildren(xmlElement);
+    var children = $(xmlElement).children();
     for (var x = 0, childNode; childNode = children[x]; x++) {
       if (childNode.nodeName.toLowerCase() == 'arg') {
         name = childNode.getAttribute('name');
@@ -763,7 +758,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     // [lyn, 10/27/13] Significantly cleaned up this code. Always take arg names from xmlElement.
     // Do not attempt to find definition.
     this.arguments_ = [];
-    var children = goog.dom.getChildren(xmlElement);
+    var children = $(xmlElement).children();
     for (var x = 0, childNode; childNode = children[x]; x++) {
       if (childNode.nodeName.toLowerCase() == 'arg') {
         this.arguments_.push(childNode.getAttribute('name'));

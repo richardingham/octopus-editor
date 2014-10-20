@@ -12,9 +12,9 @@
 
 'use strict';
 
-goog.provide('Blockly.FieldProcedure');
-goog.provide('Blockly.AIProcedure');
 
+Blockly.FieldProcedure = {};
+Blockly.AIProcedure = {};
 
 Blockly.FieldProcedure.defaultValue = ["","none"]
 

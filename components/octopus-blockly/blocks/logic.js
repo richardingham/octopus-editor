@@ -24,11 +24,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Blocks.logic');
-
-goog.require('Blockly.Blocks');
-
-
 Blockly.Blocks['controls_if'] = {
   /**
    * Block for if/elseif/else condition.

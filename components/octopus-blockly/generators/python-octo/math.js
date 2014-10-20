@@ -25,10 +25,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.PythonOcto.math');
-
-goog.require('Blockly.PythonOcto');
-
 
 // If any new block imports any library, add that library name here.
 Blockly.PythonOcto.addReservedWords('math,random');

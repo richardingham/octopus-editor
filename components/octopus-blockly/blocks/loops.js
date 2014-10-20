@@ -24,10 +24,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Blocks.loops');
-
-goog.require('Blockly.Blocks');
-
 
 Blockly.Blocks['controls_repeat'] = {
   /**
@@ -154,7 +150,7 @@ Blockly.Blocks['controls_for'] = {
    * @param {!Array} options List of menu options to add to.
    * @this Blockly.Block
    */
-  customContextMenu: function(options) {
+  /*customContextMenu: function(options) {
     if (!this.isCollapsed()) {
       var option = {enabled: true};
       var name = this.getFieldValue('VAR');
@@ -166,7 +162,7 @@ Blockly.Blocks['controls_for'] = {
       option.callback = Blockly.ContextMenu.callbackFactory(this, xmlBlock);
       options.push(option);
     }
-  }
+  }*/
 };
 
 Blockly.Blocks['controls_forEach'] = {
