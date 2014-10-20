@@ -42,7 +42,7 @@ module.exports = function(grunt) {
           'dist/blocks.min.js': ['dist/blocks.js']
         }
       },
-      python: {
+      pythonocto: {
         files: {
           'dist/python-octo.min.js': ['dist/python-octo.js']
         }
