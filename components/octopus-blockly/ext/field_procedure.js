@@ -76,40 +76,6 @@ Blockly.AIProcedure.getNamedSequenceNames = function () {
   return procNameArray;
 };
 
-// [lyn, 10/22/13] Return a list of all procedure declaration blocks
-// If returnValue is false, lists all fruitless procedure declarations (defnoreturn)
-// If returnValue is true, lists all fruitful procedure declaraations (defreturn)
-Blockly.AIProcedure.getProcedureDeclarationBlocks = function(returnValue) {
-  var topBlocks = Blockly.mainWorkspace.getTopBlocks();
-  var blockArray = [];
-  for(var i=0;i<topBlocks.length;i++){
-    if(topBlocks[i].type == "procedures_defnoreturn" && !returnValue) {
-      blockArray.push(topBlocks[i]);
-    } else if (topBlocks[i].type == "procedures_defreturn" && returnValue) {
-      blockArray.push(topBlocks[i]);
-    }
-  }
-  return blockArray;
-};
-
-Blockly.AIProcedure.getAllProcedureDeclarationBlocksExcept = function (block) {
-  var topBlocks = Blockly.mainWorkspace.getTopBlocks();
-  var blockArray = [];
-  for (var i=0;i<topBlocks.length;i++){
-    if(topBlocks[i].type === "procedures_defnoreturn" || topBlocks[i].type === "procedures_defreturn") {
-      if (topBlocks[i] !== block) {
-        blockArray.push(topBlocks[i]);
-      }
-    }
-  }
-  return blockArray;
-};
-
-Blockly.AIProcedure.getAllProcedureDeclarationNames = function () {
-  var procBlocks = Blockly.AIProcedure.getAllProcedureDeclarationBlocks();
-  return procBlocks.map(function (decl) { return decl.getFieldValue('NAME'); });
-};
-
 Blockly.AIProcedure.removeProcedureValues = function(name, workspace) {
   if (workspace  // [lyn, 04/13/14] ensure workspace isn't undefined
       && workspace === Blockly.mainWorkspace) {

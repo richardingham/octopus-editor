@@ -89,6 +89,7 @@ Blockly.FieldLexicalVariable.prototype.setValue = function (variable) {
 	this.block_.setVarType_(variable.getType());
   }
   this.value_ = variable.getName();
+  this.emit("changed", this.value_);
   this.setText(variable.getDisplay());
   // Blockly.WarningHandler.checkErrors.call(this.sourceBlock_);
 };

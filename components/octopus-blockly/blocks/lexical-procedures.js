@@ -82,9 +82,6 @@ Blockly.Blocks['procedures_defnoreturn'] = {
                           // the list of names declared in the local declaration block.
     this.warnings = [{name:"checkEmptySockets",sockets:["STACK"]}];
   },
-  onchange: function () {
-    this.arguments_ = this.declaredNames(); // ensure arguments_ is in sync with paramFlydown fields
-  },
   
   // updateParams_ logic:
   // NB this is NOT a means to change the variable names.
@@ -259,12 +256,13 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       // we instead do:
       var newArguments = procDecl.arguments_;
 	  var oldParamName = newArguments[paramIndex];
-      var variable = procDecl.getVariableScope().getVariable(oldParamName);
-      var procName = procDecl.getFieldValue('NAME');
 
       if (newParamName === oldParamName) {
         return;
       }
+
+      var variable = procDecl.getVariableScope().getVariable(oldParamName);
+      var procName = procDecl.getFieldValue('NAME');
 
       if (variable) {
         variable.setName(newParamName);
@@ -419,8 +417,8 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   },
   getVars: function() {
     var names = []
-    for (var i = 0, param; param = this.getFieldValue('VAR' + i); i++) {
-      names.push(param);
+    for (var i = 0, field; field = this.getField_('VAR' + i); i++) {
+      names.push(field.getValue());
     }
     return names;
   },
