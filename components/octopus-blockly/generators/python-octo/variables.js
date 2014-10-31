@@ -25,10 +25,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.PythonOcto.variables');
-
-goog.require('Blockly.PythonOcto');
-
 
 Blockly.PythonOcto.getVariableName_ = function (variable) {
   if (!variable) {

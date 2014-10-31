@@ -69,21 +69,34 @@ Blockly.Blocks['lexical_variable_get'] = {
     this.setOutput(true, null);
     this.setTooltip(''); //Blockly.Msg.LANG_VARIABLES_GET_TOOLTIP);
     //this.errors = [{name:"checkIsInDefinition"},{name:"checkDropDownContainsValidValue",dropDowns:["VAR"]}];
+
+	this.on("parent-changed", this.changeParent_);
   },
+  changeParent_: function () {
+		var val = this.fieldVar_.getFullVariableName();
+		var scope = this.getVariableScope();
+		var newVar = scope && scope.getScopedVariable(this.fieldVar_.getFullVariableName());
+		if (newVar) {
+			//console.log("Block " + this.id + ": Change var " + val + " to " + newVar.getName());
+			this.fieldVar_.setValue(newVar);
+		} else {
+			//console.log("Block " + this.id + ": No alternative var");
+		}
+	},
   getVariable: function () {
 	var scope = this.getVariableScope();
-	return scope && scope.getScopedVariable(this.getField_('VAR').getFullVariableName());
+	return scope && scope.getScopedVariable(this.fieldVar_.getFullVariableName());
   },
   renameVar: function(oldName, newName, variable) {
-    if (Blockly.Names.equals(oldName, this.getField_('VAR').getFullVariableName())) {
-      this.getField_('VAR').setValue(variable);
+    if (Blockly.Names.equals(oldName, this.fieldVar_.getFullVariableName())) {
+      this.fieldVar_.setValue(variable);
     }
   },
   setVarType_: function (type) {
     this.changeOutput(type);
   },
   getVars: function() {
-    return [this.getField_('VAR').getFullVariableName()];
+    return [this.fieldVar_.getFullVariableName()];
   }
   //typeblock: [{ translatedName: Blockly.Msg.LANG_VARIABLES_GET_TITLE_GET + Blockly.Msg.LANG_VARIABLES_VARIABLE }]
 };
@@ -107,7 +120,10 @@ Blockly.Blocks['lexical_variable_set'] = {
     this.setNextStatement(true);
     this.setTooltip(''); //Blockly.Msg.LANG_VARIABLES_SET_TOOLTIP);
     //this.errors = [{name:"checkIsInDefinition"},{name:"checkDropDownContainsValidValue",dropDowns:["VAR"]}];
+
+	this.on("parent-changed", this.changeParent_);
   },
+  changeParent_: Blockly.Blocks['lexical_variable_get'].changeParent_,
   getVariable: function () {
 	var scope = this.getVariableScope();
 	return scope && scope.getScopedVariable(this.getField_('VAR').getFullVariableName());

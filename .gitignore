@@ -1,1 +1,4 @@
 bower_components/*
+components/octopus-blockly/node_modules
+components/octopus-blockly/node_modules/*
+components/octopus-blockly/dist/*

@@ -1,18 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<script type="text/javascript" src="blockly/blockly_compressed.js"></script>
+<script type="text/javascript" src="dist/blockly.js"></script>
 <script type="text/javascript" src="overrides.js"></script>
-<script type="text/javascript" src="ext/ext-block.js"></script>
-<script type="text/javascript" src="ext/ext-variables.js"></script>
-<script type="text/javascript" src="ext/ext-workspace.js"></script>
-
-<!-- import goog objects that aren't part of blockly_compressed -->
-<script type="text/javascript" src="goog/positioning.js"></script>
-<script type="text/javascript" src="goog/abstractposition.js"></script>
-<script type="text/javascript" src="goog/anchoredposition.js"></script>
-<script type="text/javascript" src="goog/anchoredviewportposition.js"></script>
-<script type="text/javascript" src="goog/submenurenderer.js"></script>
-<script type="text/javascript" src="goog/submenu.js"></script>
+<script type="text/javascript" src="contextmenu.js"></script>
 
 <script type="text/javascript" src="ext/colourscheme.js"></script>
 <script type="text/javascript" src="ext/nameSet.js"></script>
@@ -26,28 +16,8 @@
 
 <script type="text/javascript" src="blockly/msg/messages.js"></script>
 
-<script type="text/javascript" src="blocks/lexical-variables.js"></script>
-<script type="text/javascript" src="blocks/lexical-procedures.js"></script>
-<script type="text/javascript" src="blocks/logic.js"></script>
-<script type="text/javascript" src="blocks/loops.js"></script>
-<script type="text/javascript" src="blocks/math.js"></script>
-<script type="text/javascript" src="blocks/text.js"></script>
-<script type="text/javascript" src="blocks/lists.js"></script>
-<script type="text/javascript" src="blocks/timing.js"></script>
-<script type="text/javascript" src="blocks/control.js"></script>
-<script type="text/javascript" src="blocks/octopus-machines.js"></script>
-<script type="text/javascript" src="blocks/octopus-connections.js"></script>
-
-<script type="text/javascript" src="generators/python-octo.js"></script>
-<script type="text/javascript" src="generators/python-octo/control.js"></script>
-<script type="text/javascript" src="generators/python-octo/loops.js"></script>
-<script type="text/javascript" src="generators/python-octo/logic.js"></script>
-<script type="text/javascript" src="generators/python-octo/variables.js"></script>
-<script type="text/javascript" src="generators/python-octo/math.js"></script>
-<script type="text/javascript" src="generators/python-octo/text.js"></script>
-<script type="text/javascript" src="generators/python-octo/procedures.js"></script>
-<script type="text/javascript" src="generators/python-octo/machines.js"></script>
-<script type="text/javascript" src="generators/python-octo/connections.js"></script>
+<script type="text/javascript" src="dist/blocks.js"></script>
+<script type="text/javascript" src="dist/python-octo.js"></script>
 
 <polymer-element name="octopus-blockly" attributes="toolbox code">
 <template>

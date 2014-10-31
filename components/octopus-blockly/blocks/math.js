@@ -24,11 +24,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Blocks.math');
-
-goog.require('Blockly.Blocks');
-
-
 Blockly.Blocks['math_number'] = {
   /**
    * Block for numeric value.
@@ -255,12 +250,14 @@ Blockly.Blocks['math_change'] = {
   init: function() {
     this.setHelpUrl(Blockly.Msg.MATH_CHANGE_HELPURL);
     this.setColour(230);
+    this.fieldVar_ = new Blockly.FieldLexicalVariable(" ");
+    this.fieldVar_.setBlock(this);
     this.appendDummyInput()
 		.appendField(new Blockly.FieldDropdown([
 			['increment', 'INCREMENT'],
 			['decrement', 'DECREMENT']
 		]), 'MODE')
-        .appendField(new Blockly.FieldLexicalVariable(" ", true), 'VAR');
+        .appendField(this.fieldVar_, 'VAR');
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     // Assign 'this' to a variable for use in the tooltip closure below.
@@ -278,11 +275,11 @@ Blockly.Blocks['math_change'] = {
    * @this Blockly.Block
    */
   getVars: function() {
-    return [this.getField_('VAR').getFullVariableName()];
+    return [this.fieldVar_.getFullVariableName()];
   },
   getVariable: function () {
-	var scope = this.getVariableScope();
-	return scope && scope.getScopedVariable(this.getField_('VAR').getFullVariableName());
+	  var scope = this.getVariableScope();
+	  return scope && scope.getScopedVariable(this.fieldVar_.getFullVariableName());
   },
   /**
    * Notification that a variable is renaming.
@@ -293,12 +290,10 @@ Blockly.Blocks['math_change'] = {
    * @this Blockly.Block
    */
   renameVar: function(oldName, newName, variable) {
-    if (Blockly.Names.equals(oldName, this.getField_('VAR').getFullVariableName())) {
-      this.getField_('VAR').setValue(variable);
+    if (Blockly.Names.equals(oldName, this.fieldVar_.getFullVariableName())) {
+      this.fieldVar_.setValue(variable);
     }
-  },
-  /*renameLexicalVar: Blockly.Blocks.lexical_variable_get.renameLexicalVar,
-  renameFree: Blockly.Blocks.lexical_variable_get.renameFree*/
+  }
 };
 
 Blockly.Blocks['math_round'] = {

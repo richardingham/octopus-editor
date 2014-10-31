@@ -25,10 +25,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.PythonOcto.loops');
-
-goog.require('Blockly.PythonOcto');
-
 Blockly.PythonOcto.LOOP_PASS = '[]';
 
 Blockly.PythonOcto['controls_repeat'] = function(block) {

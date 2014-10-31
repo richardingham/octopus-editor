@@ -8,12 +8,6 @@
 
 'use strict';
 
-goog.provide('Blockly.FieldMachineFlydown');
-
-goog.require('Blockly.FieldFlydown');
-goog.require('Blockly.FieldLexicalVariable');
-goog.require('Blockly.LexicalVariable');
-
 /**
  * Class for a clickable global variable declaration field.
  * @param {string} text The initial parameter name in the field.
@@ -25,7 +19,7 @@ Blockly.FieldMachineFlydown = function(name, displayLocation, changeHandler) {
       // rename all references to this global variable
       changeHandler)
 };
-goog.inherits(Blockly.FieldMachineFlydown, Blockly.FieldFlydown);
+inherits(Blockly.FieldMachineFlydown, Blockly.FieldFlydown);
 
 Blockly.FieldMachineFlydown.prototype.fieldCSSClassName = 'blocklyFieldParameter';
 

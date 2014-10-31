@@ -25,10 +25,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.PythonOcto.procedures');
-
-goog.require('Blockly.PythonOcto');
-
 
 Blockly.PythonOcto['procedures_defreturn'] = function(block) {
   /*/ Define a procedure with a return value.

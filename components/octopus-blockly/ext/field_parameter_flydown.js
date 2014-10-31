@@ -9,9 +9,7 @@
 
 'use strict';
 
-goog.provide('Blockly.FieldParameterFlydown');
 
-goog.require('Blockly.FieldFlydown');
 
 /**
  * Class for a parameter declaration field with flyout menu of getter/setter blocks on mouse over
@@ -43,7 +41,7 @@ Blockly.FieldParameterFlydown = function(name, isEditable, displayLocation, opt_
   }
   Blockly.FieldParameterFlydown.superClass_.constructor.call(this, name, isEditable, displayLocation, changeHandler);
 };
-goog.inherits(Blockly.FieldParameterFlydown, Blockly.FieldFlydown);
+inherits(Blockly.FieldParameterFlydown, Blockly.FieldFlydown);
 
 Blockly.FieldParameterFlydown.prototype.fieldCSSClassName = 'blocklyFieldParameter'
 

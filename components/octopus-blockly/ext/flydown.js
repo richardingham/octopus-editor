@@ -11,12 +11,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Flydown');
-
-goog.require('Blockly.Flyout');
-goog.require('Blockly.Block');
-goog.require('Blockly.Comment');
-
 /**
  * Class for a flydown.
  * @constructor
@@ -24,7 +18,7 @@ goog.require('Blockly.Comment');
 Blockly.Flydown = function() {
   Blockly.Flydown.superClass_.constructor.call(this);
  };
-goog.inherits(Blockly.Flydown, Blockly.Flyout);
+inherits(Blockly.Flydown, Blockly.Flyout);
 
 /**
  * Previous CSS class for this flydown

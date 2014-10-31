@@ -59,11 +59,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Blocks.procedures');
-
-goog.require('Blockly.Blocks.Utilities');
-goog.require('goog.dom');
-
 Blockly.Blocks['procedures_defnoreturn'] = {
   // Define a procedure with no return value.
   category: 'Procedures',  // Procedures are handled specially.
@@ -86,9 +81,6 @@ Blockly.Blocks['procedures_defnoreturn'] = {
                           // Other methods guarantee the invariant that this variable contains
                           // the list of names declared in the local declaration block.
     this.warnings = [{name:"checkEmptySockets",sockets:["STACK"]}];
-  },
-  onchange: function () {
-    this.arguments_ = this.declaredNames(); // ensure arguments_ is in sync with paramFlydown fields
   },
   
   // updateParams_ logic:
@@ -264,12 +256,13 @@ Blockly.Blocks['procedures_defnoreturn'] = {
       // we instead do:
       var newArguments = procDecl.arguments_;
 	  var oldParamName = newArguments[paramIndex];
-      var variable = procDecl.getVariableScope().getVariable(oldParamName);
-      var procName = procDecl.getFieldValue('NAME');
 
       if (newParamName === oldParamName) {
         return;
       }
+
+      var variable = procDecl.getVariableScope().getVariable(oldParamName);
+      var procName = procDecl.getFieldValue('NAME');
 
       if (variable) {
         variable.setName(newParamName);
@@ -334,7 +327,7 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   },
   domToMutation: function(xmlElement) {
     var params = [], scope = this.variableScope_, name;
-    var children = goog.dom.getChildren(xmlElement);
+    var children = $(xmlElement).children();
     for (var x = 0, childNode; childNode = children[x]; x++) {
       if (childNode.nodeName.toLowerCase() == 'arg') {
         name = childNode.getAttribute('name');
@@ -424,8 +417,8 @@ Blockly.Blocks['procedures_defnoreturn'] = {
   },
   getVars: function() {
     var names = []
-    for (var i = 0, param; param = this.getFieldValue('VAR' + i); i++) {
-      names.push(param);
+    for (var i = 0, field; field = this.getField_('VAR' + i); i++) {
+      names.push(field.getValue());
     }
     return names;
   },
@@ -763,7 +756,7 @@ Blockly.Blocks['procedures_callnoreturn'] = {
     // [lyn, 10/27/13] Significantly cleaned up this code. Always take arg names from xmlElement.
     // Do not attempt to find definition.
     this.arguments_ = [];
-    var children = goog.dom.getChildren(xmlElement);
+    var children = $(xmlElement).children();
     for (var x = 0, childNode; childNode = children[x]; x++) {
       if (childNode.nodeName.toLowerCase() == 'arg') {
         this.arguments_.push(childNode.getAttribute('name'));

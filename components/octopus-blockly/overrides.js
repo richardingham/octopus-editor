@@ -26,12 +26,10 @@ Blockly.inject = function(polymer_element, container, opt_options) {
   }
 };
 
-Blockly.Css.inject = function () {};
-
 /**
  * Initializes the toolbox.
  */
-Blockly.Toolbox.init = function() {
+/*Blockly.Toolbox.init = function() {
   Blockly.Toolbox.CONFIG_['cleardotPath'] =
       Blockly.pathToBlockly + 'media/1x1.gif';
   Blockly.Toolbox.CONFIG_['cssCollapsedFolderIcon'] =
@@ -53,7 +51,7 @@ Blockly.Toolbox.init = function() {
   goog.events.listen(window, goog.events.EventType.RESIZE,
                      Blockly.Toolbox.position_);
   Blockly.Toolbox.position_();
-};
+};*/
 
 
 /**
@@ -87,6 +85,10 @@ Blockly.Toolbox.populate_ = function() {
 	Blockly.fireUiEvent(window, 'resize');
 };
 
+Blockly.Variables = {};
+Blockly.Variables.NAME_TYPE = "VARIABLES";
+
+
 /**
  * Close tooltips, context menus, dropdown selections, etc.
  * @param {boolean=} opt_allowToolbox If true, don't close the toolbox.
@@ -97,7 +99,6 @@ Blockly.hideChaff = function(opt_allowToolbox) {
   Blockly.FieldFlydown.hide();
   if (!opt_allowToolbox &&
       Blockly.Toolbox.flyout_ && Blockly.Toolbox.flyout_.autoClose) {
-    Blockly.Toolbox.clearSelection();
 	Blockly.polymerElement_.fire('close-toolbox');
 	// Don't think this should need to be called...
 	Blockly.Toolbox.flyout_.hide();
@@ -298,4 +299,44 @@ Blockly.Procedures.mutateCallers = function(name, workspace,
   }
 };
 
+var inherits = function(childCtor, parentCtor) {
+  /** @constructor */
+  function tempCtor() {};
+  tempCtor.prototype = parentCtor.prototype;
+  childCtor.superClass_ = parentCtor.prototype;
+  childCtor.prototype = new tempCtor();
+  /** @override */
+  childCtor.prototype.constructor = childCtor;
+
+  /**
+   * Calls superclass constructor/method.
+   *
+   * This function is only available if you use goog.inherits to
+   * express inheritance relationships between classes.
+   *
+   * NOTE: This is a replacement for goog.base and for superClass_
+   * property defined in childCtor.
+   *
+   * @param {!Object} me Should always be "this".
+   * @param {string} methodName The method name to call. Calling
+   *     superclass constructor can be done with the special string
+   *     'constructor'.
+   * @param {...*} var_args The arguments to pass to superclass
+   *     method/constructor.
+   * @return {*} The return value of the superclass method/constructor.
+   */
+  childCtor.base = function(me, methodName, var_args) {
+    var args = Array.prototype.slice.call(arguments, 2);
+    return parentCtor.prototype[methodName].apply(me, args);
+  };
+};
+
+var extend = function(origin, add) {
+  var keys = Object.keys(add);
+  var i = keys.length;
+  while (i--) {
+    origin[keys[i]] = add[keys[i]];
+  }
+  return origin;
+};
   

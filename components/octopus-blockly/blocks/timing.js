@@ -24,10 +24,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Blocks.timing');
-
-goog.require('Blockly.Blocks');
-
 
 Blockly.Blocks['controls_wait'] = {
   /**

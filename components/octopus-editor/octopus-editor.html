@@ -99,13 +99,13 @@
 
 Polymer('octopus-editor', {
 	toolbarActivate: function (ev, detail) {
-		try {
+		//try {
 			var category, s = detail.value.split("-");
 			if (s.length == 2 && s[0] == "category") {
 				category = this.toolboxCategories[parseInt(s[1])];
 				Blockly.Toolbox.flyout_.show(category.blocks);
 			}
-		} catch (e) {}
+		//} catch (e) {}
 	},
 	toolbarDeactivate: function () {
 		// If the toolbar is closed by deselecting the menu, tell

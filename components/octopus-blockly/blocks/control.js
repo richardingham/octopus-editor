@@ -24,10 +24,6 @@
  */
 'use strict';
 
-goog.provide('Blockly.Blocks.control');
-
-goog.require('Blockly.Blocks');
-
 
 Blockly.Blocks['controls_run'] = {
   /**

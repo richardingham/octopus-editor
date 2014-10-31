@@ -10,16 +10,6 @@
 
 'use strict';
 
-goog.provide('Blockly.LexicalVariable');
-goog.provide('Blockly.FieldLexicalVariable');
-
-goog.require('goog.dom');
-goog.require('goog.events');
-goog.require('goog.style');
-goog.require('goog.ui.Menu');
-goog.require('goog.ui.MenuItem');
-goog.require('goog.ui.SubMenu');
-goog.require('goog.ui.MenuSeparator');
 
 /**
  * Class for a variable's dropdown field.
@@ -33,7 +23,7 @@ Blockly.FieldLexicalVariable = function(varname, forSetter) {
   this.arrow_ = Blockly.createSvgElement("tspan", {}, null);
   this.arrow_.appendChild(document.createTextNode(Blockly.RTL ? Blockly.FieldDropdown.ARROW_CHAR + " " : " " + Blockly.FieldDropdown.ARROW_CHAR));
 
-  Blockly.FieldDropdown.superClass_.constructor.call(this, " ")
+  Blockly.FieldDropdown.super_.call(this, " ")
 
   if (varname) {
     this.setText(varname);
@@ -43,7 +33,7 @@ Blockly.FieldLexicalVariable = function(varname, forSetter) {
 
   this.forSetter_ = !!forSetter;
 };
-goog.inherits(Blockly.FieldLexicalVariable, Blockly.FieldDropdown);
+inherits(Blockly.FieldLexicalVariable, Blockly.FieldDropdown);
 
 /**
  * Get the variable's name (use a variableDB to convert into a real name).
@@ -99,6 +89,7 @@ Blockly.FieldLexicalVariable.prototype.setValue = function (variable) {
 	this.block_.setVarType_(variable.getType());
   }
   this.value_ = variable.getName();
+  this.emit("changed", this.value_);
   this.setText(variable.getDisplay());
   // Blockly.WarningHandler.checkErrors.call(this.sourceBlock_);
 };
@@ -205,44 +196,34 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
   var thisField = this;
   var selected = this.value_;
   var forWrite = this.forSetter_;
-  var menu = new goog.ui.Menu();
-  var submenus = [];
 
-  function callback(e) {
-    var menuItem = e.target;
-    if (menuItem) {
-      var value = menuItem.getValue();
-      if (thisField.changeHandler_) {
-        // Call any change handler, and allow it to override.
-        var override = thisField.changeHandler_(value);
-        if (override !== undefined) {
-          value = override;
-        }
-      }
-      if (value !== null) {
-        thisField.setValue(value);
+  function callback(value) {
+    if (thisField.changeHandler_) {
+      // Call any change handler, and allow it to override.
+      var override = thisField.changeHandler_(value);
+      if (override !== undefined) {
+        value = override;
       }
     }
+    if (value !== null) {
+      thisField.setValue(value);
+    }
 	Blockly.WidgetDiv.hideIfOwner(thisField);
-
-	// For some reason submenus are not removed automatically.
-	// This makes sure they are removed from the DOM.
-	for (var x = 0; x < submenus.length; x++) {
-	  submenus[x].dispose();
-	}
   }
 
   // Build a menu or submenu
-  function build (menu, options, subMenu) {
+  function build (options, subMenu) {
     // If a submenu item is checked, all parent items will be checked.
 	// This value is returned by build() to enable this.
+	var menu = [];
 	var checked = false;
 	var option, menuItem;
 
 	if (!subMenu && options.length === 0) {
-	  menuItem = new goog.ui.MenuItem("No variables defined");
-	  menuItem.setEnabled(false);
- 	  menu.addChild(menuItem, true);
+	  menu.push({
+		text: "No variables defined",
+		enabled: false,
+ 	  });
 	  options = [];
 	}
 
@@ -251,138 +232,78 @@ Blockly.FieldLexicalVariable.prototype.showEditor_ = function() {
 	  
 	  // Separators are allowed.
 	  if (option === "separator") {
-	    menuItem = new goog.ui.MenuSeparator();
+	    menuItem = { divider: true };
 	  } 
 	  
 	  // Everything else will be a Blockly.Variable.
 	  else if (option.getName) {
-        var text = option.getMenu();  // Human-readable text.
-        var value = option; // Language-neutral value.
-	    var disabled = forWrite && option.readonly;
+        menuItem = {
+			text: option.getMenu(),  // Human-readable text.
+			value: option, // Language-neutral value.
+			enabled: !(forWrite && option.readonly)
+		};
 	    var attributes = option.getAttributes();
 
 		// If a submenu is required
 	    if (attributes.length) {
-	  	  menuItem = new goog.ui.SubMenu(text);
-		  var subChecked = false;
+		  //menuItem.enabled = true;
+	  	  menuItem.children = build(attributes, true);
+		  var subChecked = menuItem.children.isChecked;
 
 		  // Unless the parent menu item is disabled, add an entry 
 		  // to allow the parent to be selected.
-		  if (!disabled) {
-		    var subMenuItem = new goog.ui.MenuItem(text);
-			var same = (value.getName() === selected);
-		    subMenuItem.setValue(value);
-            subMenuItem.setCheckable(true);
-            subMenuItem.setChecked(same);
+		  if (menuItem.enabled) {
+		    var same = (option.getName() === selected);
+		    menuItem.children = [{
+				text: menuItem.text,
+				value: menuItem.value,
+				selected: same
+			}, {
+				divider: true
+			}].concat(menuItem.children);
+			
             subChecked |= same;
-	        menuItem.addItem(subMenuItem, true);
-	        menuItem.addItem(new goog.ui.MenuSeparator(), true);
 		  }
-
-		  subChecked |= build(menuItem, attributes, true);
 
 		  // If the parent item is "disabled" it should still be
 		  // added to the menu to allow child items to be selected.
-		  if (menuItem.getItemCount() > 0) {
-			disabled = false;
-		  }
+		  //if (menuItem.children.length > 0) {
+		//	disabled = false;
+		  //}
 
 		  // If one of the child items is checked, the parent is checked.
 		  if (subChecked) {
-            menuItem.setCheckable(true);
-            menuItem.setChecked(true);
+            menuItem.selected = true;
 		  }
 		  checked |= subChecked;
-
-		  // Add submenu to the list of menus that will be disposed.
-		  submenus.push(menuItem);
 	    } 
 		
 		// Just a regular menu item.
 		else {
-	      var same = (value.getName() === selected);
-          menuItem = new goog.ui.MenuItem(text); 
-          menuItem.setCheckable(true);
-          menuItem.setChecked(same);
+		  var same = (option.getName() === selected);
+          menuItem.selected = same;
 		  checked |= same;
 	    }
-
-        menuItem.setValue(value);
 	  }
 
 	  // "disabled" items are not added to the menu.
 	  // goog.ui.SubMenu and goog.ui.Menu use different
 	  // functions for adding children.
-	  if (!disabled) {
-	    if (subMenu) {
-	      menu.addItem(menuItem);
-        } else {
-		  menu.addChild(menuItem, true);
-	    }
+	  if (menuItem.enabled || menuItem.children) {
+	    menu.push(menuItem);
 	  }
     }
 
-	return checked;
+	menu.isChecked = checked;
+	return menu;
   }
 
   var options = this.getOptions_();
-  build(menu, options);
+  this.menu = new ContextMenu(build(options), callback, { selectable: true });
 
-  // Listen for mouse/keyboard events.
-  goog.events.listen(menu, goog.ui.Component.EventType.ACTION, callback);
-  // Listen for touch events (why doesn't Closure handle this already?).
-  function callbackTouchStart(e) {
-    var control = this.getOwnerControl(/** @type {Node} */ (e.target));
-    // Highlight the menu item.
-    control.handleMouseDown(e);
-  }
-  function callbackTouchEnd(e) {
-    var control = this.getOwnerControl(/** @type {Node} */ (e.target));
-    // Activate the menu item.
-    control.performActionInternal(e);
-  }
-  menu.getHandler().listen(menu.getElement(), goog.events.EventType.TOUCHSTART,
-                           callbackTouchStart);
-  menu.getHandler().listen(menu.getElement(), goog.events.EventType.TOUCHEND,
-                           callbackTouchEnd);
-
-  // Record windowSize and scrollOffset before adding menu.
-  var windowSize = goog.dom.getViewportSize();
-  var scrollOffset = goog.style.getViewportPageOffset(document);
   var xy = Blockly.getAbsoluteXY_(/** @type {!Element} */ (this.borderRect_));
   var borderBBox = this.borderRect_.getBBox();
-  var div = Blockly.WidgetDiv.DIV;
-  menu.render(div);
-  var menuDom = menu.getElement();
-  Blockly.addClass_(menuDom, 'blocklyDropdownMenu');
-  // Record menuSize after adding menu.
-  var menuSize = goog.style.getSize(menuDom);
-
-  // Position the menu.
-  // Flip menu vertically if off the bottom.
-  if (xy.y + menuSize.height + borderBBox.height >=
-      windowSize.height + scrollOffset.y) {
-    xy.y -= menuSize.height;
-  } else {
-    xy.y += borderBBox.height;
-  }
-  if (Blockly.RTL) {
-    xy.x += borderBBox.width;
-    xy.x += Blockly.FieldDropdown.CHECKMARK_OVERHANG;
-    // Don't go offscreen left.
-    if (xy.x < scrollOffset.x + menuSize.width) {
-      xy.x = scrollOffset.x + menuSize.width;
-    }
-  } else {
-    xy.x -= Blockly.FieldDropdown.CHECKMARK_OVERHANG;
-    // Don't go offscreen right.
-    if (xy.x > windowSize.width + scrollOffset.x - menuSize.width) {
-      xy.x = windowSize.width + scrollOffset.x - menuSize.width;
-    }
-  }
-  Blockly.WidgetDiv.position(xy.x, xy.y, windowSize, scrollOffset);
-  menu.setAllowAutoFocus(true);
-  menuDom.focus();
+  this.menu.showForBox(xy, borderBBox);
 };
 
 
