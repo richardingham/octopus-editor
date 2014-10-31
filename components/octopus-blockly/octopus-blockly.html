@@ -1,4 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-item/core-item.html">
+<link rel="import" href="octopus-blockly-toolbox/octopus-blockly-toolbox.html">
+<link rel="import" href="octopus-blockly-code/octopus-blockly-code.html">
 
 <script type="text/javascript" src="dist/blockly.js"></script>
 <script type="text/javascript" src="overrides.js"></script>
@@ -11,13 +14,44 @@
 <script type="text/javascript" src="dist/blocks.js"></script>
 <script type="text/javascript" src="dist/python-octo.js"></script>
 
+
 <polymer-element name="octopus-blockly" attributes="toolbox code">
 <template>
 
 <link rel="stylesheet" href="blockly.css">
 <link rel="stylesheet" href="ext.css">
 <style>
+
 :host {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+}
+
+:host octopus-blockly-toolbox {
+	margin: 12px 0;
+	width: 180px;
+}
+
+:host octopus-blockly-toolbox core-item {
+	padding: 0 10px;
+}
+
+:host octopus-blockly-toolbox core-item.core-selected {
+	background: #E2E2E2;
+}
+
+:host octopus-blockly-code {
+	width: 400px;
+	padding: 0 20px;
+}
+
+:host #blockly {
+	position:relative;
+}
+
+:host #blockly svg {
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -25,18 +59,18 @@
 	right: 0;
 }
 
-:host #blockly {
-	width: 100%;
-	height: 100%;
-	border: none;
-}
-
-:host #blockly svg {
-	height: 100%;
-}
 </style>
 
-<div id="blockly"></div>
+<div horizontal layout flex>
+	<octopus-blockly-toolbox valueattr="name" selected="{{ toolboxSelected }}" on-activate="{{ toolboxActivate }}" on-deactivate="{{ toolboxDeactivate }}" >
+		<template repeat="{{ category, i in toolbox }}">
+			<core-item icon="{{ category.icon }}" name="category-{{ i }}" label="{{ category.name }}"></core-item>
+		</template>
+	</octopus-blockly-toolbox>
+	<div id="blockly" flex></div>
+	<octopus-blockly-code code="{{ code }}"></octopus-blockly-code>
+</div>
+
 
 <xml id="toolboxCategories" style="display: none">
     <category name="Machines">
@@ -199,20 +233,30 @@ Polymer('octopus-blockly', {
 		});
 
 		Blockly.addChangeListener(this.blocklyChanged.bind(this));
-		Blockly.octopusMachines = [];
 	},
 
 	blocklyChanged: function () {
 		this.code = Blockly.PythonOcto.workspaceToCode();
 	},
 
-	machinesChanged: function (machines) {
-		Blockly.octopusMachines = machines;
-		this.blocklyChanged();
+	toolboxActivate: function (ev, detail) {
+		//try {
+			var category, s = detail.value.split("-");
+			if (s.length == 2 && s[0] == "category") {
+				category = this.toolbox[parseInt(s[1])];
+				Blockly.Toolbox.flyout_.show(category.blocks);
+			}
+		//} catch (e) {}
 	},
-
-	machineNameChanged: function (from, to) {
-		console.log("Name Change:", from, to);
+	toolboxDeactivate: function () {
+		// If the toolbar is closed by deselecting the menu, tell
+		// Blockly to close the flyout menu.
+		Blockly.Toolbox.flyout_.hide();
+	},
+	toolboxClosed: function () {
+		// If the toolbar is closed by Blockly (e.g. by clicking in the svg area)
+		// deselect the menu item.
+		this.toolboxSelected = null;
 	}
 });
 

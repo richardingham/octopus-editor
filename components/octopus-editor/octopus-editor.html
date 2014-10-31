@@ -1,15 +1,9 @@
-
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-
 <link rel="import" href="../../bower_components/core-header-panel/core-header-panel.html">
-<link rel="import" href="../../bower_components/core-toolbar/core-toolbar.html">
-<link rel="import" href="../../bower_components/core-item/core-item.html">
 <link rel="import" href="../../bower_components/core-icon-button/core-icon-button.html">
 <link rel="import" href="../../bower_components/core-icons/av-icons.html">
 
-<link rel="import" href="../octopus-toolbox/octopus-toolbox.html">
 <link rel="import" href="../octopus-blockly/octopus-blockly.html">
-<link rel="import" href="../octopus-code/octopus-code.html">
 
 
 <polymer-element name="octopus-editor">
@@ -28,43 +22,6 @@
 	color: #FFF;
 }
 
-:host > div {
-	flex: 1;
-}
-
-:host #toolbar {
-	width: 180px;
-}
-
-:host #toolbar octopus-toolbox {
-	margin: 12px 0;
-}
-
-:host #toolbar core-item {
-	padding: 0 10px;
-}
-
-:host #toolbar core-item.core-selected {
-	background: #E2E2E2;
-}
-
-:host #code {
-	width: 400px;
-	padding: 0 20px;
-}
-
-:host #content {
-	position:relative;
-}
-
-:host octopus-machine-editor {
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	overflow-y: scroll;
-}
-
 </style>
 
 <core-toolbar>
@@ -72,51 +29,13 @@
 	<!--core-icon-button icon="pause-circle-fill" on-tap="{{runAction}}">Pause</core-icon-button-->
 	<core-icon-button icon="cancel" on-tap="{{runAction}}">Stop</core-icon-button>
 </core-toolbar>
-
-<div horizontal layout>
-	<div id="toolbar">
-		<octopus-toolbox valueattr="name" selected="{{ toolbarSelected }}" on-activate="{{ toolbarActivate }}" on-deactivate="{{ toolbarDeactivate }}" >
-			<template repeat="{{ category, i in toolboxCategories }}">
-				<core-item icon="{{ category.icon }}" name="category-{{ i }}" label="{{ category.name }}"></core-item>
-			</template>
-		</octopus-toolbox>
-	</div>
-	<div id="content" flex>
-		<octopus-blockly id="blocklyArea"
-			toolbox="{{ toolboxCategories }}" 
-			code="{{ theCode }}" 
-			on-close-toolbox="{{ toolbarClosed }}"
-		></octopus-blockly>
-	</div>
-	<div id="code">
-		<octopus-code code="{{ theCode }}"></octopus-code>
-	</div>
-</div>
+<octopus-blockly></octopus-blockly>
 
 </template>
 
 <script>
 
 Polymer('octopus-editor', {
-	toolbarActivate: function (ev, detail) {
-		//try {
-			var category, s = detail.value.split("-");
-			if (s.length == 2 && s[0] == "category") {
-				category = this.toolboxCategories[parseInt(s[1])];
-				Blockly.Toolbox.flyout_.show(category.blocks);
-			}
-		//} catch (e) {}
-	},
-	toolbarDeactivate: function () {
-		// If the toolbar is closed by deselecting the menu, tell
-		// Blockly to close the flyout menu.
-		Blockly.Toolbox.flyout_.hide();
-	},
-	toolbarClosed: function () {
-		// If the toolbar is closed by Blockly (e.g. by clicking in the svg area)
-		// deselect the menu item.
-		this.toolbarSelected = null;
-	}
 });
 
 </script>

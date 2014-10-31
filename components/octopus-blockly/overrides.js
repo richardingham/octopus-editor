@@ -72,9 +72,9 @@ Blockly.hideChaff = function(opt_allowToolbox) {
   Blockly.FieldFlydown.hide();
   if (!opt_allowToolbox &&
       Blockly.Toolbox.flyout_ && Blockly.Toolbox.flyout_.autoClose) {
-	Blockly.polymerElement_.fire('close-toolbox');
-	// Don't think this should need to be called...
-	Blockly.Toolbox.flyout_.hide();
+	  Blockly.polymerElement_.toolboxClosed();
+	  // Don't think this should need to be called...
+	  Blockly.Toolbox.flyout_.hide();
   }
 };
 
